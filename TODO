@@ -1,0 +1,5 @@
+- Move common GET logic to separate function
+- Add check for return core 429 (too many requests) and add retry
+
+Ideas:
+- Read event set and build slide for beginning
