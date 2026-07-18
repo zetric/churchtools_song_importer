@@ -58,7 +58,8 @@ service:
 
   # Secret to use for environment variables (key = env var name, value = var value)
 
-  configmap:
-  - name: churchtools-song-importer-gesangbuch
-    mountPath: /app/source/app
-    configMap: churchtools-song-importer-gesangbuch
+  volumes:
+    configmap:
+    - name: churchtools-song-importer-gesangbuch
+      mountPath: /app/source/app
+      configMap: churchtools-song-importer-gesangbuch
