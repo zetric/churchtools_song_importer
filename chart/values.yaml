@@ -30,7 +30,7 @@ service:
     # Skip update of existing songs and only crete new ones
     SKIP_UPDATE: "False"
     # Path to the TXT file with the Gesangbuch metadata (locally)
-    GB_TXT_FILE: "gesangbuch.txt"
+    GB_TXT_FILE: "files/gesangbuch.txt"
     # Path to the Gesangbuch slides files
     GB_FILE_PATH: "gb_songs"
     # Path to the Songbeamer song files
@@ -60,5 +60,5 @@ service:
 
   volumes:
     - name: churchtools-song-importer-gesangbuch
-      mountPath: /app/source/app
+      mountPath: /app/source/app/files
       configMap: churchtools-song-importer-gesangbuch
