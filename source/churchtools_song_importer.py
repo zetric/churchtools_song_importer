@@ -289,7 +289,7 @@ if "gb" in TYPE:
 
 
 # SongBeamer mode
-elif "sb" in TYPE:
+if "sb" in TYPE:
 
   logger.info("SONGBEAMER SECTION")
 
