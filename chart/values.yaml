@@ -60,5 +60,5 @@ service:
 
   volumes:
     - name: churchtools-song-importer-gesangbuch
-      mountPath: /app/source/app/files
+      mountPath: /usr/source/app/files
       configMap: churchtools-song-importer-gesangbuch
