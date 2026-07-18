@@ -161,9 +161,13 @@ if "gb" in TYPE:
     logger.info("DELETE MODE")
 
     logger.info("Deleting all songs")
-    songs_by_category = ct.ct_get_songs_by_category_id(category_id=ct_category_id)
-    for song in songs_by_category:
-      ct.ct_delete_song_by_id(song["id"])
+    if input("Are you sure (y/n)??: ") == "y":
+      songs_by_category = ct.ct_get_songs_by_category_id(ct_category_id)
+      for song in songs_by_category:
+        logger.info(f"Deleting song {song["title"]}")
+        ct.ct_delete_song_by_id(song["id"])
+    else:
+      logger.info("Canceled...")
 
   if CMD_CLEANUP:
 
@@ -293,10 +297,13 @@ elif "sb" in TYPE:
     logger.info("DELETE MODE")
 
     logger.info("Deleting all songs")
-    songs_by_category = ct.ct_get_songs_by_category_id(ct_category_id)
-
-    for song in songs_by_category:
-      ct.ct_delete_song_by_id(song["id"])
+    if input("Are you sure (y/n)??: ") == "y":
+      songs_by_category = ct.ct_get_songs_by_category_id(ct_category_id)
+      for song in songs_by_category:
+        logger.info(f"Deleting song {song["title"]}")
+        ct.ct_delete_song_by_id(song["id"])
+    else:
+      logger.info("Canceled...")
 
   if CMD_CLEANUP:
 

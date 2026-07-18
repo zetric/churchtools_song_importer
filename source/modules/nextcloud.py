@@ -29,12 +29,9 @@ class nextcloud:
 		self.nc = nc_py_api.AsyncNextcloud(nextcloud_url=self.nextcloud_url, nc_auth_user=self.nc_auth_user, nc_auth_pass=self.nc_auth_pass)
 
 		# usual recursive traversing over directories
-		for node in await self.nc.files.listdir(path):
-			if node.is_dir:
-					await self.list_dir(node)
-			else:
-					logger.info("Found file %s", node.user_path)
-					file_list.append(node.user_path)
+		for node in await self.nc.files.listdir(path, depth=1):
+			logger.info("Found file %s", node.user_path)
+			file_list.append(node.user_path)
 
 		logging.debug("Found files:")
 		for file in file_list:
