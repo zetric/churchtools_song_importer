@@ -76,7 +76,7 @@ if SOURCE == "nc":
   if (NEXTCLOUD_USER := (args.nextcloud_user if args.nextcloud_user is not None else env_text("NEXTCLOUD_USER"))) == None: param_help("NEXTCLOUD_USER","--nextcloud-user")
   if (NEXTCLOUD_PASS := (args.nextcloud_pass if args.nextcloud_pass is not None else env_text("NEXTCLOUD_PASS"))) == None: param_help("NEXTCLOUD_PASS","--nextcloud-pass")
 NUMBER = args.number if args.number is not None else env_text("NUMBER")
-SKIP_UPDATE = args.skip_update if args.skip_update is not None else env_text("SKIP_UPDATE")
+SKIP_UPDATE = args.skip_update if args.skip_update is not None else env_bool("SKIP_UPDATE")
 if (CT_URL := (args.ct_url if args.ct_url is not None else env_text("CT_URL"))) == None: param_help("CT_URL","--ct-url")
 if (CT_API_TOKEN := (args.ct_api_token if args.ct_api_token is not None else env_text("CT_API_TOKEN"))) == None: param_help("CT_API_TOKEN","--ct-api-token")
 if (CT_SONG_ARRANGEMENT_NAME := (args.ct_song_arrangement_name if args.ct_song_arrangement_name is not None else env_text("CT_SONG_ARRANGEMENT_NAME"))) == None: param_help("CT_SONG_ARRANGEMENT_NAME","--ct-song-arrangement-name")
