@@ -346,6 +346,14 @@ elif "sb" in TYPE:
 
       logger.debug("Downloading from remote nextcloud path")
       file_list = asyncio.run(nc.list_dir(path=SB_FILE_PATH))
+
+      if NUMBER:
+        logger.info(f"Dedicated sone number {NUMBER} provided. Reducing list to this one song.")
+        for song_entry in file_list:
+          if song_entry.split('/')[-1].split('-')[0] == NUMBER:
+            file_list = list([song_entry])
+            break
+
       asyncio.run(nc.download_files(list=file_list, destination=SB_TMP_FOLDER))
       logger.debug("Reading local files")
       sb_songs = sb.read_sb_songs(path=SB_TMP_FOLDER)
@@ -356,11 +364,7 @@ elif "sb" in TYPE:
 
       logger.error("No valid file source provided")
 
-    if NUMBER:
-      logger.info(f"Dedicated sone number {NUMBER} provided. Reducing list to this one song.")
-      sb_song = sb_songs[int(NUMBER)]
-      sb_songs = []
-      sb_songs.append(sb_song)
+    
 
     logger.info("Go over every song")
     logger.info("------------------")

@@ -2,10 +2,10 @@ import os
 import logging
 import nc_py_api
 import shutil
+import asyncio
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
-logger.setLevel(os.environ["LOGLEVEL"])
 
 class nextcloud:
 
@@ -28,10 +28,10 @@ class nextcloud:
 
 		self.nc = nc_py_api.AsyncNextcloud(nextcloud_url=self.nextcloud_url, nc_auth_user=self.nc_auth_user, nc_auth_pass=self.nc_auth_pass)
 
-		# usual recursive traversing over directories
 		for node in await self.nc.files.listdir(path, depth=1):
-			logger.info("Found file %s", node.user_path)
-			file_list.append(node.user_path)
+			if not node.is_dir:
+				logger.info("Found file %s", node.user_path)
+				file_list.append(node.user_path)
 
 		logging.debug("Found files:")
 		for file in file_list:
@@ -56,19 +56,25 @@ class nextcloud:
 
 		if os.path.exists(destination):
 			shutil.rmtree(destination)
+		
+		os.makedirs(destination)
 
 		for file in list:
 
-			filename = file.rsplit('/')[-1]
-			logger.debug("Downloading file %s to %s", filename, destination)
-			download_bytes = await self.nc.files.download(file)
-			file_meta = await self.nc.files.by_path(file)
-			file_last_modified = file_meta.info.last_modified
+			await asyncio.create_task(self._download_files_job(file=file, destination=destination))
 
-			if not os.path.exists(destination):
-					os.makedirs(destination)
+ 
+	async def _download_files_job(self, file, destination):
 
-			with open(f"{destination}/{filename}", "wb") as song_file:
-				song_file.write(download_bytes)
+		#self.nc = nc_py_api.AsyncNextcloud(nextcloud_url=self.nextcloud_url, nc_auth_user=self.nc_auth_user, nc_auth_pass=self.nc_auth_pass)
 
-			os.utime(f"{destination}/{filename}", (file_last_modified.timestamp(), file_last_modified.timestamp()))
+		filename = file.rsplit('/')[-1]
+		logger.info("Downloading file %s to %s", filename, destination)
+		download_bytes = await self.nc.files.download(file)
+		file_meta = await self.nc.files.by_path(file)
+		file_last_modified = file_meta.info.last_modified
+
+		with open(f"{destination}/{filename}", "wb") as song_file:
+			song_file.write(download_bytes)
+
+		os.utime(f"{destination}/{filename}", (file_last_modified.timestamp(), file_last_modified.timestamp()))
