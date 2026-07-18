@@ -48,7 +48,7 @@ pbc:
     # ChurchTools arrangement name to use
     CT_SONG_ARRANGEMENT_NAME: "My arrangement"
     # Loglevel
-    LOGLEVEL: "DEBUG"
+    LOGLEVEL: "INFO"
 
   # Secret to use for environment variables (key = env var name, value = var value)
 
