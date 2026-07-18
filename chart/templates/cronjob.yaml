@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: "{{ .Values.service.name }}-job
+  name: "{{ .Values.service.name }}-job"
   namespace: {{ .Values.namespace }}
 spec:
   successfulJobsHistoryLimit: {{ .Values.service.successfulJobsHistoryLimit }}
