@@ -19,6 +19,7 @@ parser.add_argument('-c', '--cleanup', action="store_true", dest="cleanup", defa
 parser.add_argument('-t', '--type', action="store", dest="type", default=None, help="gb (Gesangbuch), sb (Songbeamer)")
 parser.add_argument('-s', '--source', action="store", dest="source", default=None, help="nc (nextcloud), local")
 parser.add_argument('-n', '--number', action="store", dest="number", default=None, help="Single song number to add or sync")
+parser.add_argument('--skip-update', action="store_true", dest="skip_update", default=None, help="Skip update of existing songs and only crete new ones")
 parser.add_argument('--gb-txt-file', action="store", dest="gb_txt_file", default=None, help="Path to the TXT file with the Gesangbuch metadata")
 parser.add_argument('--gb-file-path', action="store", dest="gb_file_path", default=None, help="Path to the Gesangbuch slides files")
 parser.add_argument('--sb-file-path', action="store", dest="sb_file_path", default=None, help="Path to the Songbeamer song files")
@@ -74,6 +75,7 @@ if SOURCE == "nc":
   if (NEXTCLOUD_USER := (args.nextcloud_user if args.nextcloud_user is not None else env_text("NEXTCLOUD_USER"))) == None: param_help("NEXTCLOUD_USER","--nextcloud-user")
   if (NEXTCLOUD_PASS := (args.nextcloud_pass if args.nextcloud_pass is not None else env_text("NEXTCLOUD_PASS"))) == None: param_help("NEXTCLOUD_PASS","--nextcloud-pass")
 NUMBER = args.number if args.number is not None else env_text("NUMBER")
+SKIP_UPDATE = args.skip_update if args.skip_update is not None else env_text("SKIP_UPDATE")
 if (CT_URL := (args.ct_url if args.ct_url is not None else env_text("CT_URL"))) == None: param_help("CT_URL","--ct-url")
 if (CT_API_TOKEN := (args.ct_api_token if args.ct_api_token is not None else env_text("CT_API_TOKEN"))) == None: param_help("CT_API_TOKEN","--ct-api-token")
 if (CT_SONG_ARRANGEMENT_NAME := (args.ct_song_arrangement_name if args.ct_song_arrangement_name is not None else env_text("CT_SONG_ARRANGEMENT_NAME"))) == None: param_help("CT_SONG_ARRANGEMENT_NAME","--ct-song-arrangement-name")
@@ -220,50 +222,55 @@ if "gb" in TYPE:
       if ct_song := ct.ct_get_song_by_name_and_internal_id(name=f"{songs_filtered[song]["number"]} - {songs_filtered[song]["title"]}", internal_id=songs_filtered[song]["internal_id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME, type="GB"):
                 
         logger.info("Song with this name and internal id already existing. Updating (in case there are diffs)...")
-        ct.ct_update_song(song_id=ct_song["id"], song=songs_filtered[song], category_id=ct_category_id)
+       
+        if not SKIP_UPDATE:
+          ct.ct_update_song(song_id=ct_song["id"], song=songs_filtered[song], category_id=ct_category_id)
 
-        logger.info("Get arrangement")
-        if(ct._ct_check_arrangement_name(arrangements=ct_song["arrangements"])):
+          logger.info("Get arrangement")
+          if(ct._ct_check_arrangement_name(arrangements=ct_song["arrangements"])):
 
-          arrangement_id = ct._ct_get_arrangement_id_by_name(song=ct_song, arrangement_name=CT_SONG_ARRANGEMENT_NAME)
-        
-        else:
+            arrangement_id = ct._ct_get_arrangement_id_by_name(song=ct_song, arrangement_name=CT_SONG_ARRANGEMENT_NAME)
           
-          logger.info("Arrangement not found. Creating.")
-          arrangement_id = ct.ct_create_song_arrangement(song_id=ct_song["id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME)["id"]
-
-        logger.info("Creating or updating song file")
-        if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
-
-          logger.debug("Checking if local file is newer")
-          date_local = asyncio.run(nc.get_file_modified_timestamp(songs_filtered[song]["source_path"]))
-          date_local = date_local.replace(tzinfo=None)
-          logger.debug(f"Modification date local file {date_local}")
-          date_diff = date_local - date_remote
-          logger.debug(f"Date diff: {date_diff.total_seconds()}")
-          
-          if date_diff.total_seconds() <= 0:
-
-            logger.debug("Remote file is newer than the local one. Skipping.")
-
           else:
+            
+            logger.info("Arrangement not found. Creating.")
+            arrangement_id = ct.ct_create_song_arrangement(song_id=ct_song["id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME)["id"]
 
-            logger.info("Local song file is newer. Replacing the remote")
-            if songs_filtered[song]["source_path"] == "":
-              logger.warning("No file existing at the source. Not changing anything.")
+          logger.info("Creating or updating song file")
+          if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
+
+            logger.debug("Checking if local file is newer")
+            date_local = asyncio.run(nc.get_file_modified_timestamp(songs_filtered[song]["source_path"]))
+            date_local = date_local.replace(tzinfo=None)
+            logger.debug(f"Modification date local file {date_local}")
+            date_diff = date_local - date_remote
+            logger.debug(f"Date diff: {date_diff.total_seconds()}")
+            
+            if date_diff.total_seconds() <= 0:
+
+              logger.debug("Remote file is newer than the local one. Skipping.")
+
             else:
-              asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
-              ct.ct_delete_song_file(arrangement_id=arrangement_id)
-              ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
-        
-        else:
 
-          logger.info("No file existing in ChurchTools. Uploading")
-          if songs_filtered[song]["source_path"]:
-            asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
-            ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
+              logger.info("Local song file is newer. Replacing the remote")
+              if songs_filtered[song]["source_path"] == "":
+                logger.warning("No file existing at the source. Not changing anything.")
+              else:
+                asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+                ct.ct_delete_song_file(arrangement_id=arrangement_id)
+                ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
+          
           else:
-            logger.warning("No file existing locally. Nothing to upload.")
+
+            logger.info("No file existing in ChurchTools. Uploading")
+            if songs_filtered[song]["source_path"]:
+              asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+              ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
+            else:
+              logger.warning("No file existing locally. Nothing to upload.")
+          
+        else:
+          logger.info("Skipping update")
 
       else:
 
@@ -378,41 +385,47 @@ elif "sb" in TYPE:
       if ct_song := ct.ct_get_song_by_name_and_internal_id(name=song["title"], internal_id=song["internal_id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME, type="SB"):
         
         logger.info("Song with this name and internal id already existing. Updating (in case there are diffs)...")
-        ct.ct_update_song(song_id=ct_song["id"], song=song, category_id=ct_category_id)
 
-        logger.info("Get arrangement")
-        if(ct._ct_check_arrangement_name(arrangements=ct_song["arrangements"])):
+        if not SKIP_UPDATE:
+          ct.ct_update_song(song_id=ct_song["id"], song=song, category_id=ct_category_id)
 
-          arrangement_id = ct._ct_get_arrangement_id_by_name(song=ct_song, arrangement_name=CT_SONG_ARRANGEMENT_NAME)
-        
-        else:
+          logger.info("Get arrangement")
+          if(ct._ct_check_arrangement_name(arrangements=ct_song["arrangements"])):
+
+            arrangement_id = ct._ct_get_arrangement_id_by_name(song=ct_song, arrangement_name=CT_SONG_ARRANGEMENT_NAME)
           
-          logger.info("Arrangement not found. Creating.")
-          arrangement_id = ct.ct_create_song_arrangement(song_id=ct_song["id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME)["id"]
+          else:
+            
+            logger.info("Arrangement not found. Creating.")
+            arrangement_id = ct.ct_create_song_arrangement(song_id=ct_song["id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME)["id"]
 
-        logger.info("Creating or updating song file")
-        if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
+          logger.info("Creating or updating song file")
+          if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
 
-          logger.debug("Checking if local file is newer")
-          date_local = datetime.fromtimestamp(os.path.getmtime(song["path"]))
-          logger.debug(f"Modification date local file {date_local}")
-          date_diff = date_local - date_remote
-          logger.debug(f"Date diff: {date_diff.total_seconds()}")
+            logger.debug("Checking if local file is newer")
+            date_local = datetime.fromtimestamp(os.path.getmtime(song["path"]))
+            logger.debug(f"Modification date local file {date_local}")
+            date_diff = date_local - date_remote
+            logger.debug(f"Date diff: {date_diff.total_seconds()}")
+            
+            if date_diff.total_seconds() <= 0:
+
+              logger.debug("Remote file is newer than the local one. Skipping.")
+
+            else:
+
+              logger.info("Local song file is newer. Replacing the remote")
+              ct.ct_delete_song_file(arrangement_id=arrangement_id)
+              ct.ct_upload_song_file(arrangement_id=arrangement_id, path=song["path"])
           
-          if date_diff.total_seconds() <= 0:
-
-            logger.debug("Remote file is newer than the local one. Skipping.")
-
           else:
 
-            logger.info("Local song file is newer. Replacing the remote")
-            ct.ct_delete_song_file(arrangement_id=arrangement_id)
+            logger.info("No file existing in ChurchTools. Uploading")
             ct.ct_upload_song_file(arrangement_id=arrangement_id, path=song["path"])
-        
-        else:
 
-          logger.info("No file existing in ChurchTools. Uploading")
-          ct.ct_upload_song_file(arrangement_id=arrangement_id, path=song["path"])
+        else:
+          logger.info("Skipping update")
+          
 
       else:
 

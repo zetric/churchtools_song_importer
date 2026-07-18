@@ -60,13 +60,15 @@ class nextcloud:
 		os.makedirs(destination)
 
 		for file in list:
-
-			await asyncio.create_task(self._download_files_job(file=file, destination=destination))
+			try:
+				await asyncio.create_task(self._download_files_job(file=file, destination=destination))
+			except Exception as ex:
+				logger.error("Exception. Retrying")
+				asyncio.sleep(3)
+				await asyncio.create_task(self._download_files_job(file=file, destination=destination))
 
  
 	async def _download_files_job(self, file, destination):
-
-		#self.nc = nc_py_api.AsyncNextcloud(nextcloud_url=self.nextcloud_url, nc_auth_user=self.nc_auth_user, nc_auth_pass=self.nc_auth_pass)
 
 		filename = file.rsplit('/')[-1]
 		logger.info("Downloading file %s to %s", filename, destination)
