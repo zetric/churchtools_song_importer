@@ -31,6 +31,7 @@ parser.add_argument('--ct-api-token', action="store", dest="ct_api_token", defau
 parser.add_argument('--ct-song-category-gb', action="store", dest="ct_song_category_gb", default=None, help="ChurchTools category for Gesangbuch songs")
 parser.add_argument('--ct-song-category-sb', action="store", dest="ct_song_category_sb", default=None, help="ChurchTools category for Songbeamer songs")
 parser.add_argument('--ct-song-arrangement-name', action="store", dest="ct_song_arrangement_name", default=None, help="ChurchTools arrangement name to use")
+parser.add_argument('--ct-campus-name', action="store", dest="ct_campus_name", default=None, help="Campus name of the congregation to filter for the correct category")
 parser.add_argument('--loglevel', action="store", dest="loglevel", default=None, help="Loglevel")
 
 args = parser.parse_args()
@@ -79,6 +80,7 @@ SKIP_UPDATE = args.skip_update if args.skip_update is not None else env_text("SK
 if (CT_URL := (args.ct_url if args.ct_url is not None else env_text("CT_URL"))) == None: param_help("CT_URL","--ct-url")
 if (CT_API_TOKEN := (args.ct_api_token if args.ct_api_token is not None else env_text("CT_API_TOKEN"))) == None: param_help("CT_API_TOKEN","--ct-api-token")
 if (CT_SONG_ARRANGEMENT_NAME := (args.ct_song_arrangement_name if args.ct_song_arrangement_name is not None else env_text("CT_SONG_ARRANGEMENT_NAME"))) == None: param_help("CT_SONG_ARRANGEMENT_NAME","--ct-song-arrangement-name")
+CT_CAMPUS_NAME = args.ct_campus_name if args.ct_campus_name is not None else env_text("CT_CAMPUS_NAME")
 if (LOGLEVEL := (args.loglevel if args.loglevel is not None else env_text("LOGLEVEL").upper())) == None: param_help("LOGLEVEL","--loglevel")
 
 CT_HEADERS_JSON =  {"Authorization": f"Login {CT_API_TOKEN}", "Content-Type": "application/json"}
@@ -141,17 +143,16 @@ if "gb" in TYPE:
 
   logger.debug(f"Get category id for {CT_SONG_CATEGORY_GB}")
   ct_categories = ct.ct_get_masterdata("songCategories")
-
+  ct_campus_id = ct.ct_get_campus_id_by_name(name=CT_CAMPUS_NAME)
+  logger.debug("Campus id: %s", ct_campus_id)
+  
+  ct_category_id = False
   for ct_category in ct_categories:
-    if ct_category["name"] == CT_SONG_CATEGORY_GB:
+    if ct_category["name"] == CT_SONG_CATEGORY_GB and ct_campus_id == ct_category["campusId"]:
       ct_category_id = int(ct_category["id"])
       logger.debug("Category id: %s", ct_category_id)
-
-  for ct_category in ct_categories:
-    
-    if ct_category["name"] == CT_SONG_CATEGORY_GB:
-      ct_category_id = int(ct_category["id"])
-      logger.debug("Categotry id: %s", ct_category_id)
+  if not ct_category_id:
+    logger.error(f"Cannot find campus {CT_CAMPUS_NAME} and category id for {CT_SONG_CATEGORY_GB}")
 
   if CMD_DELETE:
 
@@ -292,13 +293,18 @@ elif "sb" in TYPE:
 
   logger.info("SONGBEAMER SECTION")
 
-  logger.debug(f"Get category id for {CT_SONG_CATEGORY_GB}")
+  logger.debug(f"Get category id for {CT_SONG_CATEGORY_SB}")
   ct_categories = ct.ct_get_masterdata("songCategories")
-
+  ct_campus_id = ct.ct_get_campus_id_by_name(name=CT_CAMPUS_NAME)
+  logger.debug("Campus id: %s", ct_campus_id)
+  
+  ct_category_id = False
   for ct_category in ct_categories:
-    if ct_category["name"] == CT_SONG_CATEGORY_SB:
+    if ct_category["name"] == CT_SONG_CATEGORY_SB and ct_campus_id == ct_category["campusId"]:
       ct_category_id = int(ct_category["id"])
       logger.debug("Category id: %s", ct_category_id)
+  if not ct_category_id:
+    logger.error(f"Cannot find campus {CT_CAMPUS_NAME} and category id for {CT_SONG_CATEGORY_SB}")
 
   if CMD_DELETE:
 

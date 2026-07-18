@@ -202,6 +202,24 @@ class churchtools:
     return retVal
 
 
+  def ct_get_campus_id_by_name(self, name):
+
+    # --- Get masterdata from CT (song tags)
+
+    try:
+      (result:= requests.get(url = f"{self.CT_URL}/campuses", headers = self.CT_HEADERS_JSON)).raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        logger.error(err)
+        logger.error(result.text)
+
+    for campus in json.loads(result.text)["data"]:
+      if campus["name"] == name:
+        return campus["id"]
+
+    return False
+
+
+
   def ct_upload_song_file(self, arrangement_id, path):
     
     # --- Upload a file and attach it to a song arrangement

@@ -1,6 +1,6 @@
 namespace: churchtools
 
-pbc:
+service:
 
   name: churchtools-song-importer
   
@@ -10,7 +10,7 @@ pbc:
 
   image:
     repository: repo
-    name: infrastructure/proxmox-client
+    name: infrastructure/churchtools-song-importer
     version: "1.0"
     pullSecret: dockerregistry
 
@@ -51,6 +51,8 @@ pbc:
     CT_SONG_CATEGORY_SB: "Lobpreislieder"
     # ChurchTools arrangement name to use
     CT_SONG_ARRANGEMENT_NAME: "My arrangement"
+    # Campus name of the congregation to filter for the correct category
+    CT_CAMPUS_NAME: "My congregation"
     # Loglevel
     LOGLEVEL: "INFO"
 
