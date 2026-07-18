@@ -52,7 +52,7 @@ class songbeamer:
           # Fallback, if there is no title field
           if sb_song["title"] == "":
 
-            logger.debug(f"Title is missing in file {filename}. Adding to fix list.")
+            logger.error(f"Title is missing in file {filename}. Adding to fix list. Please check if the song has the correct name in ChurchTools. Else, change it in SongBeamer and sync again.")
             self.files_without_title.append(
               {
                 "path": path,
@@ -82,7 +82,7 @@ class songbeamer:
 
       content = []
 
-      logger.debug(f"Fixing title for {file["filename"]}")
+      logger.info(f"Fixing title for {file["filename"]}")
 
       with open(file["path"] + file["filename"], mode="r", encoding="Latin-1") as songfile:
 
