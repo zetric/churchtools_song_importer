@@ -34,7 +34,7 @@ pbc:
     # URL of the nextcloud instance
     NEXTCLOUD_URL: "https://my.cloud.de"
     # User for the nextcloud instance
-    NEXTCLOUD_USER: "patrick"
+    NEXTCLOUD_USER: "username"
     # Password for the nextcloud instance
     NEXTCLOUD_PASS: "my-token-here"
     # URL of the ChurchTools instance
