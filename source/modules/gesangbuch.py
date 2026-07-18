@@ -12,7 +12,8 @@ class gesangbuch:
     # Structure of one entry:
     #
     # 2 Großer Gott, wir loben dich
-    # 1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. T: (Nach "Te Deum laudamus" 4. Jh.) Ignaz Franz 1768 / AÖL 1973/1978
+    # 1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11.
+    # T: (Nach "Te Deum laudamus" 4. Jh.) Ignaz Franz 1768 / AÖL 1973/1978
     # M: Wien um 1776 / Leipzig 1819
     # S: Thomas Wegst 1999
     # Q: S: Rechte bei den Urhebern
@@ -20,7 +21,7 @@ class gesangbuch:
     #
     # Can have more or less lines but this is the minimum and preferred structure. Minumum is the title.
     #
-    # Manual CSV file changes do be done in some editor with regex before using in this script:
+    # Manual file changes do be done in some editor with regex before using in this script:
     #
     # Search: (^1\. .*) T:
     # Replace: $1\nT:
