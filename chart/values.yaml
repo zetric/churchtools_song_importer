@@ -28,7 +28,7 @@ service:
     # Number of single song to add / sync
     # NUMBER: ""
     # Skip update of existing songs and only crete new ones
-    SKIP_UPDATE: "FAlse"
+    SKIP_UPDATE: "False"
     # Path to the TXT file with the Gesangbuch metadata (locally)
     GB_TXT_FILE: "gesangbuch.txt"
     # Path to the Gesangbuch slides files
