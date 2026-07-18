@@ -64,11 +64,11 @@ if (CMD_ADD := args.mode_add if args.mode_add is not None else env_bool("CMD_ADD
 if (CMD_CLEANUP := (args.cleanup if args.cleanup is not None else env_bool("CMD_CLEANUP"))) == None: CMD_CLEANUP = False
 if (TYPE := (args.type if args.type is not None else env_text("TYPE"))) == None: param_help("TYPE","--type")
 if (SOURCE := (args.source if args.source is not None else env_text("SOURCE"))) == None: param_help("SOURCE","--source")
-if TYPE == "gb":
+if "gb" in TYPE:
   if (GB_TXT_FILE := (args.gb_txt_file if args.gb_txt_file is not None else env_text("GB_TXT_FILE"))) == None: param_help("GB_TXT_FILE","--gb-txt-file")
   if (GB_FILE_PATH := (args.gb_file_path if args.gb_file_path is not None else env_text("GB_FILE_PATH"))) == None: param_help("GB_FILE_PATH","--gb-file-path")
   if (CT_SONG_CATEGORY_GB := (args.ct_song_category_gb if args.ct_song_category_gb is not None else env_text("CT_SONG_CATEGORY_GB"))) == None: param_help("CT_SONG_CATEGORY_GB","--ct-song-category-gb")
-if TYPE == "sb":
+if "sb" in TYPE:
   if (SB_FILE_PATH := (args.sb_file_path if args.sb_file_path is not None else env_text("SB_FILE_PATH"))) == None: param_help("SB_FILE_PATH","--sb-file-path")
   if (CT_SONG_CATEGORY_SB := (args.ct_song_category_sb if args.ct_song_category_sb is not None else env_text("CT_SONG_CATEGORY_SB"))) == None: param_help("CT_SONG_CATEGORY_SB","--ct-song-category-sb")
 if SOURCE == "nc":
