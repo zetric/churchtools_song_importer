@@ -121,7 +121,7 @@ gb = gesangbuch.gesangbuch()
 sb = songbeamer.songbeamer()
 
 ct = churchtools.churchtools(
-  CT_URL=CT_URL,
+  CT_URL=f"{CT_URL}/api",
   CT_API_TOKEN=CT_API_TOKEN,
   CT_API_PAGE_LIMIT=CT_API_PAGE_LIMIT,
   CT_HEADERS_JSON=CT_HEADERS_JSON,
