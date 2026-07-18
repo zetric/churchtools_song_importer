@@ -137,18 +137,13 @@ if "gb" in TYPE:
 
   logger.info("GESANGBUCH SECTION")
 
-  logger.debug("Get category id")
+  logger.debug(f"Get category id for {CT_SONG_CATEGORY_GB}")
   ct_categories = ct.ct_get_masterdata("songCategories")
 
   for ct_category in ct_categories:
     if ct_category["name"] == CT_SONG_CATEGORY_GB:
       ct_category_id = int(ct_category["id"])
       logger.debug("Category id: %s", ct_category_id)
-
-  logger.info("Reading song txt file")
-  songs = gb.read_gb_songs(file=GB_TXT_FILE)
-  logger.info("Filter songs file for needed data")
-  songs_filtered = gb.filter_gb_songs(songs=songs)
 
   for ct_category in ct_categories:
     
@@ -164,7 +159,7 @@ if "gb" in TYPE:
     if input("Are you sure (y/n)??: ") == "y":
       songs_by_category = ct.ct_get_songs_by_category_id(ct_category_id)
       for song in songs_by_category:
-        logger.info(f"Deleting song {song["title"]}")
+        logger.info(f"Deleting song {song["name"]}")
         ct.ct_delete_song_by_id(song["id"])
     else:
       logger.info("Canceled...")
@@ -191,6 +186,11 @@ if "gb" in TYPE:
   if CMD_ADD:
 
     logger.info("ADD MODE")
+
+    logger.info("Reading song txt file")
+    songs = gb.read_gb_songs(file=GB_TXT_FILE)
+    logger.info("Filter songs file for needed data")
+    songs_filtered = gb.filter_gb_songs(songs=songs)
 
     if NUMBER:
       logger.info(f"Dedicated song number {NUMBER} provided. Reducing list to this one song.")
@@ -284,7 +284,7 @@ elif "sb" in TYPE:
 
   logger.info("SONGBEAMER SECTION")
 
-  logger.debug("Get category id")
+  logger.debug(f"Get category id for {CT_SONG_CATEGORY_GB}")
   ct_categories = ct.ct_get_masterdata("songCategories")
 
   for ct_category in ct_categories:
@@ -300,7 +300,7 @@ elif "sb" in TYPE:
     if input("Are you sure (y/n)??: ") == "y":
       songs_by_category = ct.ct_get_songs_by_category_id(ct_category_id)
       for song in songs_by_category:
-        logger.info(f"Deleting song {song["title"]}")
+        logger.info(f"Deleting song {song["name"]}")
         ct.ct_delete_song_by_id(song["id"])
     else:
       logger.info("Canceled...")
