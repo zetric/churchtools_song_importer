@@ -209,5 +209,5 @@ __marimo__/
 # Secrets
 .secrets
 
-#Sources
-source
+#local files
+.local

@@ -1,0 +1,58 @@
+namespace: churchtools
+
+pbc:
+
+  name: churchtools-song-importer
+  
+  schedule: "0 6 * * *"
+  successfulJobsHistoryLimit: "1"
+  failedJobsHistoryLimit: "3"
+
+  image:
+    repository: repo
+    name: infrastructure/proxmox-client
+    version: "1.1"
+    pullSecret: dockerregistry
+
+  environment:
+    # Delete mode
+    CMD_DELETE: "False"
+    # Add mode
+    CMD_ADD: "True"
+    # Cleanup songs without an internal ID after running (be careful!)
+    CMD_CLEANUP: "False"
+    # Type of songs to handle (gb or sb or both comman separated)
+    TYPE: "gb"
+    # Source of files (can be nc for nextcloud or local)
+    SOURCE: "nc"
+    # Path to the TXT file with the Gesangbuch metadata (locally)
+    GB_TXT_FILE: "gesangbuch.txt"
+    # Path to the Gesangbuch slides files
+    GB_FILE_PATH: "gb_songs"
+    # Path to the Songbeamer song files
+    SB_FILE_PATH: "sb_songs"
+    # URL of the nextcloud instance
+    NEXTCLOUD_URL: "https://my.cloud.de"
+    # User for the nextcloud instance
+    NEXTCLOUD_USER: "patrick"
+    # Password for the nextcloud instance
+    NEXTCLOUD_PASS: "my-token-here"
+    # URL of the ChurchTools instance
+    CT_URL: "https://myinstance.church.tools/api" 
+    # API token for the ChurchTools instance
+    CT_API_TOKEN: "ct-api-token"
+    # ChurchTools category for Gesangbuch songs
+    CT_SONG_CATEGORY_GB: "EmK Gesangbuch"
+    # ChurchTools category for Songbeamer songs
+    CT_SONG_CATEGORY_SB: "Lobpreislieder"
+    # ChurchTools arrangement name to use
+    CT_SONG_ARRANGEMENT_NAME: "My arrangement"
+    # Loglevel
+    LOGLEVEL: "DEBUG"
+
+  # Secret to use for environment variables (key = env var name, value = var value)
+
+  configmap:
+  - name: churchtools-song-importer-gesangbuch
+    mountPath: /app/source/app
+    configMap: churchtools-song-importer-gesangbuch

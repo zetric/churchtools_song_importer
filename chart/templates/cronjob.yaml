@@ -1,0 +1,93 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: "{{ .Values.service.name }}-job
+  namespace: {{ .Values.namespace }}
+spec:
+  successfulJobsHistoryLimit: {{ .Values.service.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.service.failedJobsHistoryLimit }}
+  schedule: "{{ .Values.service.schedule }}"
+  concurrencyPolicy : Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+          - name: {{ .Values.service.image.pullSecret }}
+          containers:
+          - name: "{{ .Values.service.name }}"
+            {{- if .Values.service.image.repository }}
+            image: "{{ .Values.service.image.repository }}/{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
+            {{ else }}
+            image: "{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
+            {{- end }}
+            imagePullPolicy: IfNotPresent
+            env:
+            {{- range $key, $val := .Values.service.environment }}
+            - name: {{ $key }}
+              value: "{{ $val }}"
+            {{- end}}
+            volumeMounts:
+            {{- range $index, $value := .Values.service.volumes }}
+            {{- if $value.secret }}
+            - name: {{ $value.name }}
+              mountPath: {{ $value.mountPath }}
+              subPath: {{ $value.subPath }}
+            {{ else }}
+            - name: {{ $value.name }}
+              mountPath: {{ $value.mountPath }}
+            {{- end}}
+            {{- end}}
+          volumes:
+          {{- range $index, $value := .Values.service.volumes }}
+          - name: {{ $value.name }}
+            {{- if $value.persistentVolumeClaim }}
+            persistentVolumeClaim:
+              claimName: {{ $value.persistentVolumeClaim }}
+            {{- end }}
+            {{- if $value.secret }}
+            secret:
+              secretName: {{ $value.secret }}
+            {{- end}}
+          {{- end}}
+          {{- if $value.configMap }}
+          configMap:
+              name: {{ $value.configMap }}
+          {{- end}}
+          restartPolicy: OnFailure
+{{- range $index, $value := .Values.service.volumes }}
+{{- if $value.persistentVolumeClaim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $value.persistentVolumeClaim }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: {{ $value.storageClassName }}
+  resources:
+    requests:
+      storage: {{ $value.diskSize }}
+  selector:
+    matchLabels:
+      service: {{ $.Values.service.name }}-{{ $.Values.service.nameOfServiceToBackup }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $value.persistentVolumeClaim }}
+  labels:
+    type: local
+    service: {{ $.Values.service.name }}-{{ $.Values.service.nameOfServiceToBackup }}
+spec:
+  storageClassName: {{ $value.storageClassName }}
+  capacity:
+    storage: {{ $value.diskSize }}
+  accessModes:
+    - ReadOnlyMany
+  hostPath:
+    path: {{ $value.hostPath }}
+{{- end }}
+{{- end }}
