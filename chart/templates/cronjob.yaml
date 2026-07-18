@@ -49,10 +49,10 @@ spec:
             secret:
               secretName: {{ $value.secret }}
             {{- end}}
-          {{- end}}
-          {{- if $value.configMap }}
-          configMap:
-              name: {{ $value.configMap }}
+            {{- if $value.configMap }}
+            configMap:
+                name: {{ $value.configMap }}
+            {{- end}}
           {{- end}}
           restartPolicy: OnFailure
 {{- range $index, $value := .Values.service.volumes }}
