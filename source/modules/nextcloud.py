@@ -71,7 +71,7 @@ class nextcloud:
 	async def _download_files_job(self, file, destination):
 
 		filename = file.rsplit('/')[-1]
-		logger.info("Downloading file %s to %s", filename, destination)
+		logger.debug("Downloading file %s to %s", filename, destination)
 		download_bytes = await self.nc.files.download(file)
 		file_meta = await self.nc.files.by_path(file)
 		file_last_modified = file_meta.info.last_modified
