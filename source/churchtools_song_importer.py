@@ -276,7 +276,8 @@ if "gb" in TYPE:
             ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
           else:
             logger.error("Arrangement not found.")
-        logger.warning("No file existing locally. Nothing to upload.")
+        else:
+          logger.warning("No file existing locally. Nothing to upload.")
 
 
 # SongBeamer mode
