@@ -1,9 +1,11 @@
 # Churchtools song importer
 
-Imports two types of "songs" to Churchtools:
+Imports two types of "songs" into ChurchTools:
 
 - "Gesangbuchlieder", the metadata comes from the electronic EmK Gesangbuch (exported as textfile, see structure below)
 - Songbeamer files including metadata if present in the .sng file
+
+The source can be a local folder or a Nextcloud folder.
 
 ## TL;DR
 
@@ -61,7 +63,7 @@ Plus modifying start and end of file
 
 ### Prepare file `variables` with paths
 
-Check `chart/values.yaml` and create a bash file like this:
+Check `chart/values.yaml` for `environments` and create a bash file like this:
 
 ```bash
 # Delete mode
@@ -90,7 +92,7 @@ python3 churchtools_song_importer.py
 ```
 
 In case you want to only use the command line or want to overwrite env vars, you can do so.<br>
-Be careful with credentials that might bestored in the shell history!
+Be careful with credentials that might be stored in the shell history!
 
 ```bash
 usage: churchtools_song_importer.py [-h] [-d] [-a] [-c] [-t TYPE] [-s SOURCE] [-n NUMBER] [--skip-update] [--gb-txt-file GB_TXT_FILE] [--gb-file-path GB_FILE_PATH] [--sb-file-path SB_FILE_PATH] [--nextcloud-url NEXTCLOUD_URL]
@@ -133,3 +135,7 @@ options:
                         Campus name of the congregation to filter for the correct category
   --loglevel LOGLEVEL   Loglevel
 ```
+
+## Running as microservice
+
+If you know how deploy a helm chart, you can run the script in a Kubernetes cluster as cron job. Check out the structure under `chart`.
