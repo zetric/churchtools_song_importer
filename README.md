@@ -2,10 +2,12 @@
 
 Imports two types of "songs" into ChurchTools:
 
-- "Gesangbuchlieder", the metadata comes from the electronic EmK Gesangbuch (exported as textfile, see structure below)
-- Songbeamer files including metadata if present in the .sng file
+- "Gesangbuchlieder"
+  - the metadata comes from the electronic EmK Gesangbuch (exported as textfile, see structure below)
+- Songbeamer files
+  - including metadata if present in the .sng file
 
-The source can be a local folder or a Nextcloud folder.
+The source can be a local folder or a Nextcloud folder. When running again, it updates the destination files accordingly.
 
 ## TL;DR
 
