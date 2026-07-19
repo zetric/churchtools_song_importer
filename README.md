@@ -30,6 +30,16 @@ Install missing modules
 pip install -r requirements.txt
 ```
 
+### Handling of files
+
+The Gesangbuch files must start with the song numer and a whitespace (e.g. `1 Mein Mund besinge tausendfach.pptx`)
+
+The Songbeamer files must start with an individual number and a hyphen (e.g. `1-Mein Song.sng`)
+
+Both song type files must be in individual folders.
+
+This number is used as reference that will be stored in the arrangement of the song in ChurchTools.
+
 ### Manual file changes for Gesangbuch export
 
 
