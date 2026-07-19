@@ -63,7 +63,7 @@ Plus modifying start and end of file
 
 ### Prepare file `variables` with paths
 
-Check `chart/values.yaml` for `environments` and create a bash file like this:
+Check `chart/values.yaml` for `environments` and create a file `variables` like this:
 
 ```bash
 # Delete mode
