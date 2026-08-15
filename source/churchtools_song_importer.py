@@ -153,6 +153,7 @@ if "gb" in TYPE:
       logger.debug("Category id: %s", ct_category_id)
   if not ct_category_id:
     logger.error(f"Cannot find campus {CT_CAMPUS_NAME} and category id for {CT_SONG_CATEGORY_GB}")
+    sys.exit(1)
 
   if CMD_DELETE:
 
@@ -216,11 +217,15 @@ if "gb" in TYPE:
       logger.info("#####################################################")
       
       file_path = get_file_path(number=songs_filtered[song]["number"], list=file_list)
-      logger.debug(f"Updating song dict with file path {file_path}")
-      songs_filtered[song].update({'source_path': file_path})
-      songs_filtered[song].update({'tmp_path': f"{GB_TMP_FOLDER}/{file_path.split('/')[-1]}"})
+      if file_path == "":
+        logger.warning("No file existing for the song. Adding extension to title.")
+        songs_filtered[song].update({'title': f"{songs_filtered[song]["title"]} - KEINE LOKALE SONG DATEI"})
+      else:
+        logger.debug(f"Updating song dict with file path {file_path}")
+        songs_filtered[song].update({'source_path': file_path})
+        songs_filtered[song].update({'tmp_path': f"{GB_TMP_FOLDER}/{file_path.split('/')[-1]}"})
 
-      if ct_song := ct.ct_get_song_by_name_and_internal_id(name=f"{songs_filtered[song]["number"]} - {songs_filtered[song]["title"]}", internal_id=songs_filtered[song]["internal_id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME, type="GB"):
+      if ct_song := ct.ct_get_song_by_name_and_internal_id(name=f"{songs_filtered[song]["number"]} - ", internal_id=songs_filtered[song]["internal_id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME, type="GB"):
                 
         logger.info("Song with this name and internal id already existing. Updating (in case there are diffs)...")
        
@@ -237,34 +242,40 @@ if "gb" in TYPE:
             logger.info("Arrangement not found. Creating.")
             arrangement_id = ct.ct_create_song_arrangement(song_id=ct_song["id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME)["id"]
 
-          logger.info("Creating or updating song file")
           if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
 
+            logger.info("Creating or updating song file if newer")
             logger.debug("Checking if local file is newer")
-            date_local = asyncio.run(nc.get_file_modified_timestamp(songs_filtered[song]["source_path"]))
-            date_local = date_local.replace(tzinfo=None)
-            logger.debug(f"Modification date local file {date_local}")
-            date_diff = date_local - date_remote
-            logger.debug(f"Date diff: {date_diff.total_seconds()}")
             
-            if date_diff.total_seconds() <= 0:
+            if "sourcePath" in songs_filtered[song]:
+              date_local = asyncio.run(nc.get_file_modified_timestamp(songs_filtered[song]["source_path"]))
+              date_local = date_local.replace(tzinfo=None)
+              logger.debug(f"Modification date local file {date_local}")
+              date_diff = date_local - date_remote
+              logger.debug(f"Date diff: {date_diff.total_seconds()}")
+              
+              if date_diff.total_seconds() <= 0:
 
-              logger.debug("Remote file is newer than the local one. Skipping.")
+                logger.debug("Remote file is newer than the local one. Skipping.")
 
+              else:
+
+                logger.info("Local song file is newer. Replacing the remote")
+                if songs_filtered[song]["source_path"] == "":
+                  logger.warning("No file existing at the source. Not changing anything.")
+                else:
+                  asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+                  ct.ct_delete_song_file(arrangement_id=arrangement_id)
+                  ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
+           
             else:
 
-              logger.info("Local song file is newer. Replacing the remote")
-              if songs_filtered[song]["source_path"] == "":
-                logger.warning("No file existing at the source. Not changing anything.")
-              else:
-                asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
-                ct.ct_delete_song_file(arrangement_id=arrangement_id)
-                ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
-          
+              logger.warning("No local file existing.")
+
           else:
 
-            logger.info("No file existing in ChurchTools. Uploading")
-            if songs_filtered[song]["source_path"]:
+            logger.info("No file existing in ChurchTools. Uploading.")
+            if "source_path" in songs_filtered[song]:
               asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
               ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
             else:
@@ -278,7 +289,7 @@ if "gb" in TYPE:
         logger.info("Song is not yet existing. Creating...")
         ct_song = ct.ct_create_song(songs_filtered[song], ct_category_id, CT_SONG_ARRANGEMENT_NAME, type="GB")
         logger.info("Uploading arrangement file")
-        if songs_filtered[song]["source_path"]:
+        if "source_path" in songs_filtered[song]:
           if(arrangement_id := ct._ct_get_arrangement_id_by_name(ct_song, CT_SONG_ARRANGEMENT_NAME)):
             asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
             ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
@@ -405,9 +416,10 @@ if "sb" in TYPE:
             logger.info("Arrangement not found. Creating.")
             arrangement_id = ct.ct_create_song_arrangement(song_id=ct_song["id"], arrangement_name=CT_SONG_ARRANGEMENT_NAME)["id"]
 
-          logger.info("Creating or updating song file")
+          
           if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
 
+            logger.info("Creating or updating song file if newer")
             logger.debug("Checking if local file is newer")
             date_local = datetime.fromtimestamp(os.path.getmtime(song["path"]))
             logger.debug(f"Modification date local file {date_local}")
@@ -452,8 +464,9 @@ if "sb" in TYPE:
           
 
 
-  logger.debug("Cleaning up...")
-  if os.path.exists(SB_TMP_FOLDER):
-    shutil.rmtree(SB_TMP_FOLDER)
-  if os.path.exists(GB_TMP_FOLDER):
-    shutil.rmtree(GB_TMP_FOLDER)
+
+logger.debug("Cleaning up...")
+if os.path.exists(SB_TMP_FOLDER):
+  shutil.rmtree(SB_TMP_FOLDER)
+if os.path.exists(GB_TMP_FOLDER):
+  shutil.rmtree(GB_TMP_FOLDER)

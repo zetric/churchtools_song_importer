@@ -108,14 +108,13 @@ class churchtools:
     for song in songs:
 
       for arrangement in song["arrangements"]:
-        if arrangement["name"] == arrangement_name:
-          if(description := arrangement["description"]):
-            try:
-              if description.split(f"##")[1].lstrip(type) == internal_id:
-                return song
-            except Exception as ex:
-              logger.warning(ex)
-              logger.warning("Internal song id was not properly found")
+        if(description := arrangement["description"]):
+          try:
+            if description.split(f"##")[1].lstrip(type) == internal_id:
+              return song
+          except Exception as ex:
+            logger.warning(ex)
+            logger.warning("Internal song id was not properly found")
     
     return False
 
