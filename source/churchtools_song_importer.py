@@ -300,7 +300,7 @@ if "gb" in TYPE:
                   logger.warning("No file existing at the source. Not changing anything.")
                 else:
                   if SOURCE == "nc":
-                    asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=songs_filtered[song]["tmp_path"]))
+                    asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
                   elif SOURCE =="local":
                     shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
                   ct.ct_delete_song_file(arrangement_id=arrangement_id)
@@ -315,7 +315,7 @@ if "gb" in TYPE:
             logger.info("No file existing in ChurchTools. Uploading.")
             if "source_path" in songs_filtered[song]:
               if SOURCE == "nc":
-                asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=songs_filtered[song]["tmp_path"]))
+                asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
               elif SOURCE =="local":
                 shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
               ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
@@ -333,7 +333,7 @@ if "gb" in TYPE:
         if "source_path" in songs_filtered[song]:
           if(arrangement_id := ct._ct_get_arrangement_id_by_name(ct_song, CT_SONG_ARRANGEMENT_NAME)):
             if SOURCE == "nc":
-              asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=songs_filtered[song]["tmp_path"]))
+              asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
             elif SOURCE =="local":
               shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
             ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])

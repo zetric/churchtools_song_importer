@@ -1,3 +1,7 @@
+# 1.2.2
+
+- 🐞 Fix copy process to TMP folder
+
 # 1.2.1
 
 - 🐞 Fix missing variable
