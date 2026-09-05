@@ -16,7 +16,7 @@ service:
 
   environment:
     # Delete mode
-    CMD_DELETE: "False"
+    CMD_DELETE_ALL: "False"
     # Add mode
     CMD_ADD: "True"
     # Cleanup songs without an internal ID after running (be careful!)
