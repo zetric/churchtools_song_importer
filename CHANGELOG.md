@@ -1,3 +1,7 @@
+# 1.2.1
+
+- 🐞 Fix missing variable
+
 # 1.2
 
 - 🆕 Add cleanup mode to always represent the state of the source in ChurchTools
