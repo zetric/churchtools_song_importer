@@ -398,7 +398,7 @@ if "sb" in TYPE:
 
     logger.info("CLEANUP MODE")
 
-    logger.info("Cleaning up all songs without an internal id or who are not in the Gesangbuch source")
+    logger.info("Cleaning up all songs without an internal id or who are not in the Songbeamer source")
     songs_by_category = ct.ct_get_songs_by_category_id(category_id=ct_category_id)
 
     for song in songs_by_category:
