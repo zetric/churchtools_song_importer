@@ -315,7 +315,6 @@ class churchtools:
       if arrangement["name"] == self.CT_SONG_ARRANGEMENT_NAME:
         if len(arrangement["files"]) > 0:
           date_remote = datetime.strptime(arrangement["files"][0]["meta"]["modifiedDate"], "%Y-%m-%dT%H:%M:%SZ")
-          logger.debug(f"Modification date remote file: {date_remote}")
           return date_remote
         else:
           return False
