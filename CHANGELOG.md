@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
 # 1.2.2
 
 - 🐞 Fix copy process to TMP folder
@@ -10,18 +7,6 @@
 - 🐞 Fix missing variable
 
 # 1.2
-
-- 🆕 Add cleanup mode to always represent the state of the source in ChurchTools
-
-# 1.1
-
-- 🐞 Fix handling of missing local file for GB songs (title gets extension)
-
->>>>>>> Stashed changes
-# 1.0
-=======
-# 1.2
->>>>>>> 06dabd45e5edc5c7e30fb41fb2be9478ca7c659f
 
 - 🆕 Add cleanup mode to always represent the state of the source in ChurchTools
 

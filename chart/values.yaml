@@ -11,15 +11,7 @@ service:
   image:
     repository: repo
     name: infrastructure/churchtools-song-importer
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-    version: "1.4"
-=======
     version: "1.6"
->>>>>>> Stashed changes
-=======
-    version: "1.5"
->>>>>>> 06dabd45e5edc5c7e30fb41fb2be9478ca7c659f
     pullSecret: dockerregistry
 
   environment:

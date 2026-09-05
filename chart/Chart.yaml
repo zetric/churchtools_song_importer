@@ -15,26 +15,10 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-version: 0.0.7
-=======
 version: 1.2.2
->>>>>>> Stashed changes
-=======
-version: 1.2
->>>>>>> 06dabd45e5edc5c7e30fb41fb2be9478ca7c659f
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-appVersion: "1.4"
-=======
 appVersion: 1.6
->>>>>>> Stashed changes
-=======
-appVersion: "1.5"
->>>>>>> 06dabd45e5edc5c7e30fb41fb2be9478ca7c659f
