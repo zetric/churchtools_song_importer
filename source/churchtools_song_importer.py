@@ -13,7 +13,7 @@ import modules.nextcloud as nextcloud
 
 # Parsing arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--delete', action="store_true", dest="mode_delete", default=None,help="deletes all songs of this category before doing anything else")
+parser.add_argument('-d', '--delete-all', action="store_true", dest="mode_delete", default=None,help="deletes all songs of this category before doing anything else")
 parser.add_argument('-a', '--add', action="store_true", dest="mode_add", default=None, help="add mode")
 parser.add_argument('-c', '--cleanup', action="store_true", dest="cleanup", default=None, help="Remove all songs that do not contain an internal ID and were therefore not managed by this script (be careful!)")
 parser.add_argument('-t', '--type', action="store", dest="type", default=None, help="gb (Gesangbuch), sb (Songbeamer)")
@@ -59,8 +59,8 @@ def env_text(name):
     
     return value
 
-if (CMD_ADD := args.mode_add if args.mode_add is not None else env_bool("CMD_ADD")) == None or (CMD_DELETE := args.mode_delete if args.mode_delete is not None else env_bool("CMD_DELETE")) == None:
-  param_help("CMD_ADD / CMD_DELETE","--add / --delete")
+if (CMD_ADD := args.mode_add if args.mode_add is not None else env_bool("CMD_ADD")) == None: param_help("CMD_ADD","--add") 
+if (CMD_DELETE_ALL := args.mode_delete if args.mode_delete is not None else env_bool("CMD_DELETE_ALL")) == None: param_help("CMD_DELETE_ALL","--delete-all")
 if (CMD_CLEANUP := (args.cleanup if args.cleanup is not None else env_bool("CMD_CLEANUP"))) == None: CMD_CLEANUP = False
 if (TYPE := (args.type if args.type is not None else env_text("TYPE"))) == None: param_help("TYPE","--type")
 if (SOURCE := (args.source if args.source is not None else env_text("SOURCE"))) == None: param_help("SOURCE","--source")
@@ -92,6 +92,14 @@ GB_TMP_FOLDER = "gb_tmp"
 logging.basicConfig(level=LOGLEVEL, format='%(asctime)s-%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+logger.debug("Cleaning up...")
+if os.path.exists(SB_TMP_FOLDER):
+  shutil.rmtree(SB_TMP_FOLDER)
+if os.path.exists(GB_TMP_FOLDER):
+  shutil.rmtree(GB_TMP_FOLDER)
+logger.debug("Creating TMP folder")
+os.makedirs(GB_TMP_FOLDER)
+os.makedirs(SB_TMP_FOLDER)
 
 def copy_files_to_tmp(path, dst):
 
@@ -129,11 +137,12 @@ ct = churchtools.churchtools(
   CT_SONG_ARRANGEMENT_NAME=CT_SONG_ARRANGEMENT_NAME
 )
 
-nc = nextcloud.nextcloud(
-  nextcloud_url=NEXTCLOUD_URL,
-  nc_auth_user=NEXTCLOUD_USER,
-  nc_auth_pass=NEXTCLOUD_PASS
-)
+if SOURCE == "nc":
+  nc = nextcloud.nextcloud(
+    nextcloud_url=NEXTCLOUD_URL,
+    nc_auth_user=NEXTCLOUD_USER,
+    nc_auth_pass=NEXTCLOUD_PASS
+  )
 
 
 # Gesangbuch mode
@@ -155,7 +164,12 @@ if "gb" in TYPE:
     logger.error(f"Cannot find campus {CT_CAMPUS_NAME} and category id for {CT_SONG_CATEGORY_GB}")
     sys.exit(1)
 
-  if CMD_DELETE:
+  logger.info("Reading song txt file")
+  songs = gb.read_gb_songs(file=GB_TXT_FILE)
+  logger.info("Filter songs file for needed data")
+  songs_filtered = gb.filter_gb_songs(songs=songs)
+
+  if CMD_DELETE_ALL:
 
     logger.info("DELETE MODE")
 
@@ -166,35 +180,55 @@ if "gb" in TYPE:
         logger.info(f"Deleting song {song["name"]}")
         ct.ct_delete_song_by_id(song["id"])
     else:
-      logger.info("Canceled...")
+      logger.info("Canceled...")  
+
+  if SOURCE == "nc":
+
+    logger.info("Listing files from remote nextcloud path")
+    file_list = asyncio.run(nc.list_dir(path=GB_FILE_PATH))
+  
+  elif SOURCE == "local":
+
+    logger.info("Listing files from local path")
+    file_list_local = os.listdir(GB_FILE_PATH)
+    file_list = []
+    for file in file_list_local:
+      file_list.append(f"{GB_FILE_PATH}/{file}")
+  
 
   if CMD_CLEANUP:
 
     logger.info("CLEANUP MODE")
 
-    logger.info("Cleaning up all songs without an internal id")
+    logger.info("Cleaning up all songs without an internal id or who are not in the Gesangbuch source")
     songs_by_category = ct.ct_get_songs_by_category_id(category_id=ct_category_id)
 
     for song in songs_by_category:
       arrangement_id = ct._ct_get_arrangement_id_by_name(song=song, arrangement_name=CT_SONG_ARRANGEMENT_NAME)
       if not arrangement_id:
+        logger.info(f"Deleting song {song["name"]} - no arrangement")
         ct.ct_delete_song_by_id(song["id"])
       else:
         for arrangement in song["arrangements"]:
           if arrangement['description']:
             if arrangement["id"] == arrangement_id and "#DIESE ZEILE NICHT ÄNDERN##" not in arrangement['description']:
+              logger.info(f"Deleting song {song["name"]} - no ID field")
               ct.ct_delete_song_by_id(song["id"])
+            else:
+              song_gb_found = False
+              for song_gb in songs_filtered:
+                if arrangement["description"].split(f"##")[1].lstrip("GB") == songs_filtered[song_gb]["internal_id"]:
+                  song_gb_found = True
+              if not song_gb_found:
+                logger.info(f"Deleting song {song["name"]} - non of internal ids found in ID filed")
+                ct.ct_delete_song_by_id(song["id"])
           else:
-            ct.ct_delete_song_by_id(song["id"])  
-  
+            logger.info(f"Deleting song {song["name"]} - else")
+            ct.ct_delete_song_by_id(song["id"])
+
   if CMD_ADD:
 
     logger.info("ADD MODE")
-
-    logger.info("Reading song txt file")
-    songs = gb.read_gb_songs(file=GB_TXT_FILE)
-    logger.info("Filter songs file for needed data")
-    songs_filtered = gb.filter_gb_songs(songs=songs)
 
     if NUMBER:
       logger.info(f"Dedicated song number {NUMBER} provided. Reducing list to this one song.")
@@ -203,10 +237,6 @@ if "gb" in TYPE:
       songs_filtered[str(NUMBER)] = {}
       songs_filtered[str(NUMBER)].update(single_song)
 
-    if SOURCE == "nc":
-
-      logger.info("Listing files from remote nextcloud path")
-      file_list = asyncio.run(nc.list_dir(path=GB_FILE_PATH))
 
     logger.info("Go over every song")
     logger.info("------------------")
@@ -244,11 +274,16 @@ if "gb" in TYPE:
 
           if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
 
+            logger.debug(f"Modification date remote file: {date_remote}")
+
             logger.info("Creating or updating song file if newer")
             logger.debug("Checking if local file is newer")
             
-            if "sourcePath" in songs_filtered[song]:
-              date_local = asyncio.run(nc.get_file_modified_timestamp(songs_filtered[song]["source_path"]))
+            if "source_path" in songs_filtered[song]:
+              if SOURCE == "nc":
+                date_local = asyncio.run(nc.get_file_modified_timestamp(songs_filtered[song]["source_path"]))
+              elif SOURCE =="local":
+                date_local = datetime.fromtimestamp(os.path.getmtime(songs_filtered[song]["source_path"]))
               date_local = date_local.replace(tzinfo=None)
               logger.debug(f"Modification date local file {date_local}")
               date_diff = date_local - date_remote
@@ -264,7 +299,10 @@ if "gb" in TYPE:
                 if songs_filtered[song]["source_path"] == "":
                   logger.warning("No file existing at the source. Not changing anything.")
                 else:
-                  asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+                  if SOURCE == "nc":
+                    asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=songs_filtered[song]["tmp_path"]))
+                  elif SOURCE =="local":
+                    shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
                   ct.ct_delete_song_file(arrangement_id=arrangement_id)
                   ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
            
@@ -276,7 +314,10 @@ if "gb" in TYPE:
 
             logger.info("No file existing in ChurchTools. Uploading.")
             if "source_path" in songs_filtered[song]:
-              asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+              if SOURCE == "nc":
+                asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=songs_filtered[song]["tmp_path"]))
+              elif SOURCE =="local":
+                shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
               ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
             else:
               logger.warning("No file existing locally. Nothing to upload.")
@@ -291,7 +332,10 @@ if "gb" in TYPE:
         logger.info("Uploading arrangement file")
         if "source_path" in songs_filtered[song]:
           if(arrangement_id := ct._ct_get_arrangement_id_by_name(ct_song, CT_SONG_ARRANGEMENT_NAME)):
-            asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+            if SOURCE == "nc":
+              asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=songs_filtered[song]["tmp_path"]))
+            elif SOURCE =="local":
+              shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
             ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
           else:
             logger.error("Arrangement not found.")
@@ -317,7 +361,7 @@ if "sb" in TYPE:
   if not ct_category_id:
     logger.error(f"Cannot find campus {CT_CAMPUS_NAME} and category id for {CT_SONG_CATEGORY_SB}")
 
-  if CMD_DELETE:
+  if CMD_DELETE_ALL:
 
     logger.info("DELETE MODE")
 
@@ -330,6 +374,12 @@ if "sb" in TYPE:
     else:
       logger.info("Canceled...")
 
+  
+  if SOURCE == "nc":
+  
+    logger.info("Listing files from remote nextcloud path")
+    file_list = asyncio.run(nc.list_dir(path=SB_FILE_PATH))
+  
   if CMD_CLEANUP:
 
     logger.info("CLEANUP MODE")
@@ -367,17 +417,13 @@ if "sb" in TYPE:
       logger.debug("Reading local files")
       sb_songs = sb.read_sb_songs(path=SB_TMP_FOLDER)
 
-    elif SOURCE == "nc":
-
-      logger.debug("Downloading from remote nextcloud path")
-      file_list = asyncio.run(nc.list_dir(path=SB_FILE_PATH))
-
-      if NUMBER:
-        logger.info(f"Dedicated sone number {NUMBER} provided. Reducing list to this one song.")
-        for song_entry in file_list:
-          if song_entry.split('/')[-1].split('-')[0] == NUMBER:
-            file_list = list([song_entry])
-            break
+    
+    if NUMBER:
+      logger.info(f"Dedicated song number {NUMBER} provided. Reducing list to this one song.")
+      for song_entry in file_list:
+        if song_entry.split('/')[-1].split('-')[0] == NUMBER:
+          file_list = list([song_entry])
+          break
 
       asyncio.run(nc.download_files(list=file_list, destination=SB_TMP_FOLDER))
       logger.debug("Reading local files")
