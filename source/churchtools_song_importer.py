@@ -264,7 +264,14 @@ if "gb" in TYPE:
                 if songs_filtered[song]["source_path"] == "":
                   logger.warning("No file existing at the source. Not changing anything.")
                 else:
+<<<<<<< Updated upstream
                   asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+=======
+                  if SOURCE == "nc":
+                    asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+                  elif SOURCE =="local":
+                    shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
+>>>>>>> Stashed changes
                   ct.ct_delete_song_file(arrangement_id=arrangement_id)
                   ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
            
@@ -276,7 +283,14 @@ if "gb" in TYPE:
 
             logger.info("No file existing in ChurchTools. Uploading.")
             if "source_path" in songs_filtered[song]:
+<<<<<<< Updated upstream
               asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+=======
+              if SOURCE == "nc":
+                asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+              elif SOURCE =="local":
+                shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
+>>>>>>> Stashed changes
               ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
             else:
               logger.warning("No file existing locally. Nothing to upload.")
@@ -291,7 +305,14 @@ if "gb" in TYPE:
         logger.info("Uploading arrangement file")
         if "source_path" in songs_filtered[song]:
           if(arrangement_id := ct._ct_get_arrangement_id_by_name(ct_song, CT_SONG_ARRANGEMENT_NAME)):
+<<<<<<< Updated upstream
             asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+=======
+            if SOURCE == "nc":
+              asyncio.run(nc.download_files(list=list([songs_filtered[song]["source_path"]]), destination=GB_TMP_FOLDER))
+            elif SOURCE =="local":
+              shutil.copyfile(songs_filtered[song]["source_path"], songs_filtered[song]["tmp_path"])
+>>>>>>> Stashed changes
             ct.ct_upload_song_file(arrangement_id=arrangement_id, path=songs_filtered[song]["tmp_path"])
           else:
             logger.error("Arrangement not found.")
