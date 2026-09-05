@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
 # 1.2.2
@@ -18,9 +19,16 @@
 
 >>>>>>> Stashed changes
 # 1.0
+=======
+# 1.2
+>>>>>>> 06dabd45e5edc5c7e30fb41fb2be9478ca7c659f
 
-Initial release
+- 🆕 Add cleanup mode to always represent the state of the source in ChurchTools
 
 # 1.1
 
-- Fix handling of missing local file for GB songs (title gets extension)
+- 🐞 Fix handling of missing local file for GB songs (title gets extension)
+
+# 1.0
+
+Initial release
