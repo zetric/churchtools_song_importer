@@ -103,9 +103,9 @@ os.makedirs(SB_TMP_FOLDER)
 
 def copy_files_to_tmp(path, dst):
 
-    for root, dirs, files in os.walk(path):
-      for file in files:
-        shutil.copy2(src=f"{path}/{file}", dst=dst)
+  for file in os.listdir(path):
+    if os.path.isfile(os.path.join(path, file)):
+      shutil.copy2(src=f"{path}/{file}", dst=dst)
 
 
 def get_file_path(number, list):
@@ -379,64 +379,65 @@ if "sb" in TYPE:
   
     logger.info("Listing files from remote nextcloud path")
     file_list = asyncio.run(nc.list_dir(path=SB_FILE_PATH))
+    asyncio.run(nc.download_files(list=file_list, destination=SB_TMP_FOLDER))
+    # Fix files where the title is not set
+    sb._fix_missing_title(sb.files_without_title)
+
+  elif SOURCE == "local":
+  
+      logger.info("Listing files from local path")
+      file_list = os.listdir(SB_FILE_PATH)
+      logger.info("Copying files to TMP folder")
+      copy_files_to_tmp(path=SB_FILE_PATH, dst=SB_TMP_FOLDER)
+  
+  logger.debug("Reading local files")
+  sb_songs = sb.read_sb_songs(path=SB_TMP_FOLDER)
+     
   
   if CMD_CLEANUP:
 
     logger.info("CLEANUP MODE")
 
-    logger.info("Cleaning up all songs without an internal id")
+    logger.info("Cleaning up all songs without an internal id or who are not in the Gesangbuch source")
     songs_by_category = ct.ct_get_songs_by_category_id(category_id=ct_category_id)
 
     for song in songs_by_category:
       arrangement_id = ct._ct_get_arrangement_id_by_name(song=song, arrangement_name=CT_SONG_ARRANGEMENT_NAME)
       if not arrangement_id:
+        logger.info(f"Deleting song {song["name"]} - no arrangement")
         ct.ct_delete_song_by_id(song["id"])
       else:
         for arrangement in song["arrangements"]:
           if arrangement['description']:
             if arrangement["id"] == arrangement_id and "#DIESE ZEILE NICHT ÄNDERN##" not in arrangement['description']:
+              logger.info(f"Deleting song {song["name"]} - no ID field")
               ct.ct_delete_song_by_id(song["id"])
+            else:
+              song_sb_found = False
+              for song_sb in sb_songs:
+                #logger.debug(song_sb)
+                if arrangement["description"].split(f"##")[1].lstrip("SB") == song_sb["internal_id"]:
+                  song_sb_found = True
+              if not song_sb_found:
+                logger.info(f"Deleting song {song["name"]} - non of internal ids found in ID filed")
+                ct.ct_delete_song_by_id(song["id"])
           else:
-            ct.ct_delete_song_by_id(song["id"])  
+            logger.info(f"Deleting song {song["name"]} - else")
+            ct.ct_delete_song_by_id(song["id"])
 
   if CMD_ADD:
 
     logger.info("ADD MODE")
 
     logger.info("Reading SongBeamer song files")
-
-    if SOURCE == "local":
-
-      logger.info("Copying files from local path")
-      if os.path.exists(SB_TMP_FOLDER):
-        shutil.rmtree(SB_TMP_FOLDER)
-        os.makedirs(SB_TMP_FOLDER)
-      else:
-        os.makedirs(SB_TMP_FOLDER)
-      copy_files_to_tmp(path=SB_FILE_PATH, dst=SB_TMP_FOLDER)
-      logger.debug("Reading local files")
-      sb_songs = sb.read_sb_songs(path=SB_TMP_FOLDER)
-
     
     if NUMBER:
       logger.info(f"Dedicated song number {NUMBER} provided. Reducing list to this one song.")
-      for song_entry in file_list:
-        if song_entry.split('/')[-1].split('-')[0] == NUMBER:
-          file_list = list([song_entry])
+      for song_entry in sb_songs:
+        if song_entry['internal_id'] == NUMBER:
+          sb_songs = list([song_entry])
           break
-
-      asyncio.run(nc.download_files(list=file_list, destination=SB_TMP_FOLDER))
-      logger.debug("Reading local files")
-      sb_songs = sb.read_sb_songs(path=SB_TMP_FOLDER)
-      # Fix files where the title is not set
-      sb._fix_missing_title(sb.files_without_title)
-
-    else:
-
-      logger.error("No valid file source provided")
-
     
-
     logger.info("Go over every song")
     logger.info("------------------")
     for song in sb_songs:
@@ -465,8 +466,11 @@ if "sb" in TYPE:
           
           if (date_remote := ct._ct_get_arrangement_file_modification_date(arrangements=ct_song["arrangements"])):
 
+            logger.debug(f"Modification date remote file: {date_remote}")
+
             logger.info("Creating or updating song file if newer")
             logger.debug("Checking if local file is newer")
+
             date_local = datetime.fromtimestamp(os.path.getmtime(song["path"]))
             logger.debug(f"Modification date local file {date_local}")
             date_diff = date_local - date_remote
