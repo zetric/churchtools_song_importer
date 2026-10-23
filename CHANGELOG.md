@@ -1,3 +1,7 @@
+# 1.3.2
+
+- 🐞 Fix Dockerfile command
+
 # 1.3.1
 
 - 🐞 Fix secret config mount
