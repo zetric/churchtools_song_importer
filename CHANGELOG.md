@@ -1,3 +1,7 @@
+# 1.3.1
+
+- 🐞 Fix secret config mount
+
 # 1.3
 
 - 🔁 Change from env vars to config file logic

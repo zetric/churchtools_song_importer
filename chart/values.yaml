@@ -23,6 +23,7 @@ service:
     - name: churchtools-song-importer-config
       mountPath: /usr/source/app/config.yaml
       secret: churchtools-song-importer-config
+      subPath: config.yaml
     # Gesangbuch txt file
     - name: churchtools-song-importer-gesangbuch
       mountPath: /usr/source/app/files
