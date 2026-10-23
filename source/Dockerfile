@@ -7,5 +7,5 @@ COPY ./ ./
 RUN apt update && apt upgrade -y
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD [ "python", "./churchtools_song_importer.py" ]
+CMD [ "python", "./churchtools_song_importer.py", "--configfile config.yaml" ]
     

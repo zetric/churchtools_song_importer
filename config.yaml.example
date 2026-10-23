@@ -1,0 +1,69 @@
+global:
+
+  LOGLEVEL: INFO
+  # URL of the ChurchTools instance
+  CT_URL: "https://my.church.tools" 
+  # API token for the ChurchTools instance
+  CT_API_TOKEN: "sometoken"
+  # ChurchTools arrangement name to use
+  CT_SONG_ARRANGEMENT_NAME: "MyArrangement"
+
+workloads:
+
+- name: Songbeamer
+  # Delete mode
+  CMD_DELETE_ALL: False
+  # Add mode
+  CMD_ADD: True
+  # Cleanup songs without an internal ID after running (be careful!)
+  CMD_CLEANUP: False
+  # Type of songs to handle (gb or sb or both comman separated)
+  TYPE: "songbeamer"
+  # Source of files (can be nextcloud or local)
+  SOURCE: "nextcloud"
+  # Number of single song to add / sync
+  # NUMBER: ""
+  # Skip update of existing songs and only crete new ones
+  SKIP_UPDATE: True
+  # Path to the song files
+  FILE_PATH: "path/to/folder"
+  # URL of the nextcloud instance
+  NEXTCLOUD_URL: "https://my.cloud.de"
+  # User for the nextcloud instance
+  NEXTCLOUD_USER: "username"
+  # Password for the nextcloud instance
+  NEXTCLOUD_PASS: "password"
+  # ChurchTools category for the songs
+  CT_SONG_CATEGORY: "somecategory for Songbeamer"
+  # Campus name of the congregation to filter for the correct category
+  CT_CAMPUS_NAME: "MyCampus"
+
+- name: Gesangbuch
+  # Delete mode
+  CMD_DELETE_ALL: False
+  # Add mode
+  CMD_ADD: True
+  # Cleanup songs without an internal ID after running (be careful!)
+  CMD_CLEANUP: False
+  # Type of songs to handle (gb or sb or both comman separated)
+  TYPE: "gesangbuch"
+  # Source of files (can be nc for nextcloud or local)
+  SOURCE: "nextcloud"
+  # Number of single song to add / sync
+  # NUMBER: ""
+  # Skip update of existing songs and only crete new ones
+  SKIP_UPDATE: True
+  # Path to the TXT file with the Gesangbuch metadata (locally)
+  GB_TXT_FILE: ".local/gesangbuch.txt"
+  # Path to the song files
+  FILE_PATH: "path/to/folder"
+  # URL of the nextcloud instance
+  NEXTCLOUD_URL: "https://my.cloud.de"
+  # User for the nextcloud instance
+  NEXTCLOUD_USER: "username"
+  # Password for the nextcloud instance
+  NEXTCLOUD_PASS: "password"
+  # ChurchTools category for the songs
+  CT_SONG_CATEGORY: "somecategory for Gesangbuch"
+  # Campus name of the congregation to filter for the correct category
+  CT_CAMPUS_NAME: "MyCampus"

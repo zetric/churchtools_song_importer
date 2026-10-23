@@ -1,2 +1,3 @@
 requests
 nc_py_api
+pyyaml

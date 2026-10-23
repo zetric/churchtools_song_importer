@@ -3,14 +3,13 @@ import logging
 
 
 logger = logging.getLogger(__name__) 
-logger.setLevel(os.environ["LOGLEVEL"])
 
 class songbeamer:
 
   files_without_title = []
 
-  def __init__(self):
-    pass
+  def __init__(self, loglevel):
+    logger.setLevel(loglevel)
 
   def read_sb_songs(self, path):
 

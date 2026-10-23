@@ -15,7 +15,9 @@ class nextcloud:
 	nc_auth_pass = None
 
 
-	def __init__(self, nextcloud_url, nc_auth_user, nc_auth_pass):
+	def __init__(self, nextcloud_url, nc_auth_user, nc_auth_pass, loglevel):
+		
+		logger.setLevel(loglevel)
 		
 		self.nextcloud_url=nextcloud_url
 		self.nc_auth_user=nc_auth_user
@@ -71,7 +73,7 @@ class nextcloud:
 	async def _download_files_job(self, file, destination):
 
 		filename = file.rsplit('/')[-1]
-		logger.debug("Downloading file %s to %s", filename, destination)
+		logger.info("Downloading file %s to %s", filename, destination)
 		download_bytes = await self.nc.files.download(file)
 		file_meta = await self.nc.files.by_path(file)
 		file_last_modified = file_meta.info.last_modified

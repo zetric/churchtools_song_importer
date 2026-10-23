@@ -14,7 +14,8 @@ class churchtools:
       CT_API_PAGE_LIMIT,
       CT_HEADERS_JSON,
       CT_HEADERS_FORM,
-      CT_SONG_ARRANGEMENT_NAME
+      CT_SONG_ARRANGEMENT_NAME,
+      loglevel
       ):
     self.CT_URL = CT_URL
     self.CT_API_TOKEN = CT_API_TOKEN
@@ -22,6 +23,7 @@ class churchtools:
     self.CT_HEADERS_JSON = CT_HEADERS_JSON
     self.CT_HEADERS_FORM = CT_HEADERS_FORM
     self.CT_SONG_ARRANGEMENT_NAME = CT_SONG_ARRANGEMENT_NAME
+    logger.setLevel(loglevel)
  
 
   def ct_create_song(self,song, category_id, arrangement_name, type):

@@ -1,3 +1,9 @@
+# 1.3
+
+- 🔁 Change from env vars to config file logic
+- 🆕 Add support for multiple workloads
+- Sources and types are now written as full word for better understanding
+
 # 1.2.2
 
 - 🆕 Add cleanup mode to always represent the state of the source in ChurchTools

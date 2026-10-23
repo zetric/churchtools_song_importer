@@ -1,9 +1,12 @@
 import re
+import logging
+
+logger = logging.getLogger(__name__) 
 
 class gesangbuch:
 
-  def __init__(self):
-    pass
+  def __init__(self, loglevel):
+    logger.setLevel(loglevel)
 
   def read_gb_songs(self, file):
 

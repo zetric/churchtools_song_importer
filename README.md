@@ -73,81 +73,38 @@ Replace: <END>\n<START>\n$1
 Plus modifying start and end of file
 ```
 
-### Prepare file `variables` with paths
+### Prepare file `config.yaml`
 
-Check `chart/values.yaml` for `environments` and create a file `variables` like this:
+Check `config.yaml.example` and create a `config.yaml` file like this
 
-```bash
-# Delete mode
-export CMD_DELETE="False"
-# Add mode
-export CMD_ADD="True"
-# Cleanup songs without an internal ID after running (be careful!)
-export CMD_CLEANUP="False"
-# Type of songs to handle (gb or sb or both comman separated)
-export TYPE="sb"
-...
-```
-
-Source the file
-
-```bash
-source variables
-```
 
 ### Run the script
 
 When you have set all required environment variables, you can run the script just like this:
 
 ```bash
-python3 churchtools_song_importer.py
+python3 churchtools_song_importer.py --configfile config.yaml
 ```
 
-In case you want to only use the command line or want to overwrite env vars, you can do so.<br>
-Be careful with credentials that might be stored in the shell history!
+General usage:
 
 ```bash
-usage: churchtools_song_importer.py [-h] [-d] [-a] [-c] [-t TYPE] [-s SOURCE] [-n NUMBER] [--skip-update] [--gb-txt-file GB_TXT_FILE] [--gb-file-path GB_FILE_PATH] [--sb-file-path SB_FILE_PATH] [--nextcloud-url NEXTCLOUD_URL]
-                                    [--nextcloud-user NEXTCLOUD_USER] [--nextcloud-pass NEXTCLOUD_PASS] [--ct-url CT_URL] [--ct-api-token CT_API_TOKEN] [--ct-song-category-gb CT_SONG_CATEGORY_GB]
-                                    [--ct-song-category-sb CT_SONG_CATEGORY_SB] [--ct-song-arrangement-name CT_SONG_ARRANGEMENT_NAME] [--ct-campus-name CT_CAMPUS_NAME] [--loglevel LOGLEVEL]
+usage: churchtools_song_importer.py [-h] [--loglevel LOGLEVEL] [--configfile CONFIGFILE] [--workload WORKLOAD]
 
 options:
   -h, --help            show this help message and exit
-  -d, --delete          deletes all songs of this category before doing anything else
-  -a, --add             add mode
-  -c, --cleanup         Remove all songs that do not contain an internal ID and were therefore not managed by this script (be careful!)
-  -t TYPE, --type TYPE  gb (Gesangbuch), sb (Songbeamer)
-  -s SOURCE, --source SOURCE
-                        nc (nextcloud), local
-  -n NUMBER, --number NUMBER
-                        Single song number to add or sync
-  --skip-update         Skip update of existing songs and only crete new ones
-  --gb-txt-file GB_TXT_FILE
-                        Path to the TXT file with the Gesangbuch metadata
-  --gb-file-path GB_FILE_PATH
-                        Path to the Gesangbuch slides files
-  --sb-file-path SB_FILE_PATH
-                        Path to the Songbeamer song files
-  --nextcloud-url NEXTCLOUD_URL
-                        URL of the nextcloud instance
-  --nextcloud-user NEXTCLOUD_USER
-                        User for the nextcloud instance
-  --nextcloud-pass NEXTCLOUD_PASS
-                        Password for the nextcloud instance
-  --ct-url CT_URL       URL of the ChurchTools instance
-  --ct-api-token CT_API_TOKEN
-                        API token for the ChurchTools instance
-  --ct-song-category-gb CT_SONG_CATEGORY_GB
-                        ChurchTools category for Gesangbuch songs
-  --ct-song-category-sb CT_SONG_CATEGORY_SB
-                        ChurchTools category for Songbeamer songs
-  --ct-song-arrangement-name CT_SONG_ARRANGEMENT_NAME
-                        ChurchTools arrangement name to use
-  --ct-campus-name CT_CAMPUS_NAME
-                        Campus name of the congregation to filter for the correct category
   --loglevel LOGLEVEL   Loglevel
+  --configfile CONFIGFILE
+                        Configfile
+  --workload WORKLOAD   Workload name for single execution mode
 ```
+
+Environment variables (overwritten by command line options, overwrite config entries):
+
+`CONFIGFILE`<br>
+`LOGLEVEL`
 
 ## Running as microservice
 
 If you know how deploy a helm chart, you can run the script in a Kubernetes cluster as cron job. Check out the structure under `chart`.
+
