@@ -10,7 +10,7 @@ service:
 
   image:
     repository: repo
-    name: infrastructure/churchtools-song-importer
+    name: churchtools/churchtools-song-importer
     version: "1.7"
     pullSecret: dockerregistry
 
