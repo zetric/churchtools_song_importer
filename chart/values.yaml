@@ -11,7 +11,7 @@ service:
   image:
     repository: repo
     name: churchtools/churchtools-song-importer
-    version: "1.8"
+    version: "1.9"
     pullSecret: dockerregistry
 
   environment:

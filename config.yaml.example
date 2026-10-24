@@ -15,15 +15,15 @@ workloads:
   CMD_DELETE_ALL: False
   # Add mode
   CMD_ADD: True
-  # Cleanup songs without an internal ID after running (be careful!)
+  # Cleanup songs without an arrangement or internal ID after running (be careful!)
   CMD_CLEANUP: False
-  # Type of songs to handle (gb or sb or both comman separated)
+  # Type of songs to handle (gesangbuch, songbeamer, file (for file only))
   TYPE: "songbeamer"
   # Source of files (can be nextcloud or local)
   SOURCE: "nextcloud"
   # Number of single song to add / sync
   # NUMBER: ""
-  # Skip update of existing songs and only crete new ones
+  # Skip update of existing songs and only create new ones
   SKIP_UPDATE: True
   # Path to the song files
   FILE_PATH: "path/to/folder"
@@ -37,21 +37,23 @@ workloads:
   CT_SONG_CATEGORY: "somecategory for Songbeamer"
   # Campus name of the congregation to filter for the correct category
   CT_CAMPUS_NAME: "MyCampus"
+  # Unique identifier in the ChurchTools song description
+  CT_SONG_IDENTIFIER: "SB"
 
 - name: Gesangbuch
   # Delete mode
   CMD_DELETE_ALL: False
   # Add mode
   CMD_ADD: True
-  # Cleanup songs without an internal ID after running (be careful!)
+  # Cleanup songs without an arrangement or internal ID after running (be careful!)
   CMD_CLEANUP: False
-  # Type of songs to handle (gb or sb or both comman separated)
+  # Type of songs to handle (gesangbuch, songbeamer, file (for file only))
   TYPE: "gesangbuch"
   # Source of files (can be nc for nextcloud or local)
   SOURCE: "nextcloud"
   # Number of single song to add / sync
   # NUMBER: ""
-  # Skip update of existing songs and only crete new ones
+  # Skip update of existing songs and only create new ones
   SKIP_UPDATE: True
   # Path to the TXT file with the Gesangbuch metadata (locally)
   GB_TXT_FILE: ".local/gesangbuch.txt"
@@ -67,3 +69,36 @@ workloads:
   CT_SONG_CATEGORY: "somecategory for Gesangbuch"
   # Campus name of the congregation to filter for the correct category
   CT_CAMPUS_NAME: "MyCampus"
+  # Unique identifier in the ChurchTools song description
+  CT_SONG_IDENTIFIER: "GB"
+
+- name: Another book
+  # Delete mode
+  CMD_DELETE_ALL: False
+  # Add mode
+  CMD_ADD: True
+  # Cleanup songs without an arrangement after running (be careful!)
+  CMD_CLEANUP: False
+  # Type of songs to handle (gesangbuch, songbeamer, file (for file only))
+  TYPE: "gesangbuch"
+  # Source of files (can be nc for nextcloud or local)
+  SOURCE: "nextcloud"
+  # Number of single song to add / sync
+  # NUMBER: ""
+  # Skip update of existing songs and only create new ones
+  SKIP_UPDATE: True
+  # Path to the TXT file with the Gesangbuch metadata (locally)
+  GB_TXT_FILE: ".local/gesangbuch.txt"
+  # Path to the song files
+  FILE_PATH: "path/to/folder"
+  # URL of the nextcloud instance
+  NEXTCLOUD_URL: "https://my.cloud.de"
+  # User for the nextcloud instance
+  NEXTCLOUD_USER: "username"
+  # Password for the nextcloud instance
+  NEXTCLOUD_PASS: "password"
+  # ChurchTools category for the songs
+  CT_SONG_CATEGORY: "somecategory for the book"
+  # Campus name of the congregation to filter for the correct category
+  CT_CAMPUS_NAME: "MyCampus"
+  # Unique identifier not needed here as identification works only by filename

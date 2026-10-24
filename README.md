@@ -1,11 +1,14 @@
 # Churchtools song importer
 
-Imports two types of "songs" into ChurchTools:
+Imports three types of "songs" into ChurchTools:
 
 - "Gesangbuchlieder"
   - the metadata comes from the electronic EmK Gesangbuch (exported as textfile, see structure below)
 - Songbeamer files
   - including metadata if present in the .sng file
+- General files
+  - may be any PPTX or PDF or whatever files that are treated as song files
+  - will not carry any metadata by their nature
 
 The source can be a local folder or a Nextcloud folder. When running again, it updates the destination files accordingly.
 
@@ -34,14 +37,13 @@ pip install -r requirements.txt
 
 The Gesangbuch files must start with the song numer and a whitespace (e.g. `1 Mein Mund besinge tausendfach.pptx`)
 
-The Songbeamer files must start with an individual number and a hyphen (e.g. `1-Mein Song.sng`)
+The Songbeamer files must start with an individual number and a hyphen (e.g. `1 Mein Song.sng`)
 
 Both song type files must be in individual folders.
 
 This number is used as reference that will be stored in the arrangement of the song in ChurchTools.
 
 ### Manual file changes for Gesangbuch export
-
 
 Read a txt file that is an export from "EM elektronisch"
  

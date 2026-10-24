@@ -1,3 +1,8 @@
+# 1.4
+
+- 🆕 Add workload type "file" for workloads where only files are echoed by their file names without any metadata
+- 🔁 Songbeamer song files in the source must now use a whitespace instead of an hyphen as separator between song number and title
+
 # 1.3.3
 
 - 🐞 Fix gesangbuch.txt mount

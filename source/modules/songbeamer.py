@@ -33,7 +33,7 @@ class songbeamer:
             
           content = songfile.readlines()
 
-          sb_song.update({"internal_id": filename.split('-')[0]})
+          sb_song.update({"internal_id": filename.split(' ')[0]})
           sb_song.update({"path": f"{path}/{filename}"})
 
           for line in content:

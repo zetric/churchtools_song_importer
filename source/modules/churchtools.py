@@ -26,7 +26,7 @@ class churchtools:
     logger.setLevel(loglevel)
  
 
-  def ct_create_song(self,song, category_id, arrangement_name, type):
+  def ct_create_song_with_id(self, song, category_id, arrangement_name, type):
 
     # --- Create a new song in CT
 
@@ -56,9 +56,39 @@ class churchtools:
     except requests.exceptions.HTTPError as err:
         logger.error(err)
         logger.error(result.text)
-    
 
-  def ct_update_song(self, song_id, song, category_id):
+
+  def ct_create_song(self, song, category_id, arrangement_name):
+  
+      # --- Create a new song in CT
+  
+      # Check if there is a dedicated song number
+      if "number" in song.keys():
+        title = f"{song["number"]} - {song["title"]}"
+      else:
+        title = song["title"]
+  
+      body = {
+        "categoryId": category_id,
+        "name": title,
+        'arrangements': [{
+                    'name': arrangement_name,
+                    'isDefault': True,
+                    'description': f"#DIESE ZEILE NICHT ÄNDERN##ID_BY_NAME##\n"
+        }]
+      }
+  
+      try:
+        (result := requests.post(url = f"{self.CT_URL}/songs", headers = self.CT_HEADERS_JSON, json = body)).raise_for_status()
+        result_json = json.loads(result.text)
+        result_json_complete = result_json["data"]
+        return result_json_complete
+      except requests.exceptions.HTTPError as err:
+          logger.error(err)
+          logger.error(result.text)
+        
+
+  def ct_update_song_by_id(self, song_id, song, category_id):
 
     # --- Update a song in CT
 
