@@ -26,7 +26,7 @@ service:
       subPath: config.yaml
     # Gesangbuch txt file
     - name: churchtools-song-importer-gesangbuch
-      mountPath: /usr/source/app
+      mountPath: /usr/source/app/files
       configMap: churchtools-song-importer-gesangbuch
       items:
       - key: gesangbuch.txt
