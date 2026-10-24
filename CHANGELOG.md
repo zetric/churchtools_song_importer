@@ -1,3 +1,7 @@
+# 1.3.3
+
+- 🐞 Fix gesangbuch.txt mount
+
 # 1.3.2
 
 - 🐞 Fix Dockerfile command

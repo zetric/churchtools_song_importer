@@ -52,6 +52,13 @@ spec:
             {{- if $value.configMap }}
             configMap:
                 name: {{ $value.configMap }}
+                {{- if $value.items }}
+                {{- range $i, $v := $value.items }}
+                items:
+                - key: {{ $v.key }}
+                  key: {{ $v.path }}
+                {{- end}}
+                {{- end}}
             {{- end}}
           {{- end}}
           restartPolicy: OnFailure
