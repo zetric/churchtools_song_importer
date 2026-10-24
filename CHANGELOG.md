@@ -1,3 +1,7 @@
+# 1.4.1
+
+- 🆕 FILE ONLY mode: Add support for song files where no number should be parsed
+
 # 1.4
 
 - 🆕 Add workload type "file" for workloads where only files are echoed by their file names without any metadata

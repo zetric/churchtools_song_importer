@@ -62,6 +62,7 @@ class nextcloud:
     os.makedirs(destination)
 
     for file in list:
+      logger.info(f"Downloading {file}")
       try:
         await asyncio.create_task(self._download_files_job(file=file, destination=destination))
       except Exception as ex:

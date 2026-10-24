@@ -6,7 +6,7 @@ Imports three types of "songs" into ChurchTools:
   - the metadata comes from the electronic EmK Gesangbuch (exported as textfile, see structure below)
 - Songbeamer files
   - including metadata if present in the .sng file
-- General files
+- General files ("file only" mode)
   - may be any PPTX or PDF or whatever files that are treated as song files
   - will not carry any metadata by their nature
 

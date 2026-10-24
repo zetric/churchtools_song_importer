@@ -1,4 +1,3 @@
-Create microservice
-
 Real async downloads (something still fishy there)
-Async song creation including file upload
+Async song creation including file upload (?) -> Logging?
+One cronjob per workload?

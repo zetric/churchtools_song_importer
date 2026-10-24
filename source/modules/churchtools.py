@@ -151,16 +151,16 @@ class churchtools:
     return False
 
 
-  def ct_get_songs_by_name(self, name):
+  def ct_get_songs_by_name_and_category_id(self, name, category_id):
 
     # --- Get a song from CT by id
 
     try:
-      (result:= requests.get(url = f"{self.CT_URL}/songs?include=arrangements&name={name}&limit={self.CT_API_PAGE_LIMIT}&page=1", headers = self.CT_HEADERS_JSON)).raise_for_status()
+      (result:= requests.get(url = f"{self.CT_URL}/songs?include=arrangements&name={name}&song_category_ids[]={category_id}&limit={self.CT_API_PAGE_LIMIT}&page=1", headers = self.CT_HEADERS_JSON)).raise_for_status()
       result_json = json.loads(result.text)
       result_json_complete = result_json["data"]
       while result_json["meta"]["pagination"]["current"] <= result_json["meta"]["pagination"]["lastPage"]:
-        (result:= requests.get(url = f"{self.CT_URL}/songs?include=arrangements&name={name}&limit={self.CT_API_PAGE_LIMIT}&page={result_json["meta"]["pagination"]["current"] + 1}", headers = self.CT_HEADERS_JSON)).raise_for_status()
+        (result:= requests.get(url = f"{self.CT_URL}/songs?include=arrangements&name={name}&song_category_ids[]={category_id}&limit={self.CT_API_PAGE_LIMIT}&page={result_json["meta"]["pagination"]["current"] + 1}", headers = self.CT_HEADERS_JSON)).raise_for_status()
         result_json = json.loads(result.text)
         result_json_complete.extend(result_json["data"])
       return result_json_complete

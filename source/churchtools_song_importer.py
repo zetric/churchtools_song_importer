@@ -7,6 +7,7 @@ from datetime import datetime
 import asyncio
 import shutil
 import yaml
+import re
 import modules.gesangbuch as gesangbuch
 import modules.songbeamer as songbeamer
 import modules.churchtools as churchtools
@@ -522,23 +523,37 @@ for workload in CONFIG['workloads']:
       file_list = asyncio.run(nc.list_dir(path=workload['FILE_PATH']))
       song_array = []
       for file in file_list:
-        song_array.append({
-          "number": file.split('/')[-1].split(' ')[0], 
-          "title": file.split('/')[-1].split(' ', 1)[1],
-          "fullPath": file
+        if workload['DETECT_SONG_NUMBERS']:
+          song_array.append({
+            "number": file.split('/')[-1].split(' ')[0], 
+            "title": file.split('/')[-1].split(' ', 1)[1].split('.')[0],
+            "fullPath": file
         })
-    
+        else:
+          song_array.append({
+            "title": file.split('/')[-1].split('.')[0],
+            "fullPath": file
+          })
+
+
     elif workload['SOURCE'] == "local":
 
       logger.info("Listing files from local path")
       file_list_local = os.listdir(workload['FILE_PATH'])
       song_array = []
       for file in file_list_local:
-        song_array.append({
-          "number": file.split(' ')[0],
-          "title": file.split(' ', 1)[1],
-          "fullPath": f"{workload['FILE_PATH']}/{file}"
-        })
+        if re.findall(r"^[0-9]* ", file):
+          song_array.append({
+            "number": file.split(' ')[0],
+            "title": file.split('.')[0],
+            "fullPath": f"{workload['FILE_PATH']}/{file}"
+          })
+        else:
+          song_array.append({
+            "title": file.split('/')[-1].split('.')[0],
+            "fullPath": f"{workload['FILE_PATH']}/{file}"
+          })
+        
 
     if workload['CMD_CLEANUP']:
 
@@ -569,11 +584,18 @@ for workload in CONFIG['workloads']:
       logger.info("------------------")
       for song in song_array:
 
+        if 'number' in song:
+          title_new = f"{song['number']} - {song['title']}"
+        else:
+          title_new = song['title']
+
         logger.info("#####################################################")
-        logger.info("Current song: %s %s", song['number'], song['title'])
+        logger.info("Current song: %s", title_new)
         logger.info("#####################################################")
         
-        ct_songs = ct.ct_get_songs_by_name(name=f"{song['number']} - {song['title']}")
+
+
+        ct_songs = ct.ct_get_songs_by_name_and_category_id(name=title_new, category_id=ct_category_id)
         
         if ct_songs:
           for ct_song in ct_songs:

@@ -87,10 +87,10 @@ workloads:
   # NUMBER: ""
   # Skip update of existing songs and only create new ones
   SKIP_UPDATE: True
-  # Path to the TXT file with the Gesangbuch metadata (locally)
-  GB_TXT_FILE: ".local/gesangbuch.txt"
   # Path to the song files
   FILE_PATH: "path/to/folder"
+  # Flag that enables detection of song numbers in file names
+  DETECT_SONG_NUMBERS: False
   # URL of the nextcloud instance
   NEXTCLOUD_URL: "https://my.cloud.de"
   # User for the nextcloud instance
