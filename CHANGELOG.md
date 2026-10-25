@@ -1,3 +1,8 @@
+# 1.4.2
+
+- 🐞 Fix function in churchtools module
+- 🆕 Beautify logging
+
 # 1.4.1
 
 - 🆕 FILE ONLY mode: Add support for song files where no number should be parsed

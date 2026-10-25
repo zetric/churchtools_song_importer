@@ -82,7 +82,7 @@ def get_file_path(number, list):
 
 # MAIN FUNCTIONS
 
-logger.info("START")
+logger.info("➡️ START")
 
 ct = churchtools.churchtools(
   CT_URL=f"{CONFIG['global']['CT_URL']}/api",
@@ -116,7 +116,7 @@ for workload in CONFIG['workloads']:
   # Gesangbuch mode
   if "gesangbuch" in workload['TYPE']:
 
-    logger.info(f"WORKLOAD: {workload['name']} - TYPE GESANGBUCH")
+    logger.info(f"👉 WORKLOAD: {workload['name']} - TYPE GESANGBUCH")
 
     gb = gesangbuch.gesangbuch(loglevel=LOGLEVEL)
 
@@ -141,7 +141,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_DELETE_ALL']:
 
-      logger.info("DELETE MODE")
+      logger.info("❌ DELETE MODE")
 
       logger.info("Deleting all songs")
       if input("Are you sure (y/n)??: ") == "y":
@@ -168,7 +168,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_CLEANUP']:
 
-      logger.info("CLEANUP MODE")
+      logger.info("🧹 CLEANUP MODE")
 
       logger.info("Cleaning up all songs without an arrangement, an internal id or who are not in the Gesangbuch source")
       songs_by_category = ct.ct_get_songs_by_category_id(category_id=ct_category_id)
@@ -198,7 +198,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_ADD']:
 
-      logger.info("ADD MODE")
+      logger.info("➕ ADD MODE")
 
       if 'NUMBER' in workload:
         logger.info(f"Dedicated song number {workload['NUMBER']} provided. Reducing list to this one song.")
@@ -213,7 +213,7 @@ for workload in CONFIG['workloads']:
       for song in songs_filtered:
 
         logger.info("#####################################################")
-        logger.info("Current song: %s - %s", song, songs_filtered[song]["title"])
+        logger.info("🎵 Current song: %s - %s", song, songs_filtered[song]["title"])
         logger.info("#####################################################")
         
         file_path = get_file_path(number=songs_filtered[song]["number"], list=file_list)
@@ -232,7 +232,7 @@ for workload in CONFIG['workloads']:
           if not workload['SKIP_UPDATE']:
             ct.ct_update_song_by_id(song_id=ct_song["id"], song=songs_filtered[song], category_id=ct_category_id)
 
-            logger.info("Get arrangement")
+            logger.debug("Get arrangement")
             if(ct._ct_check_arrangement_name(arrangements=ct_song["arrangements"])):
 
               arrangement_id = ct._ct_get_arrangement_id_by_name(song=ct_song, arrangement_name=CONFIG['global']['CT_SONG_ARRANGEMENT_NAME'])
@@ -316,7 +316,7 @@ for workload in CONFIG['workloads']:
   # SongBeamer mode
   if "songbeamer" in workload['TYPE']:
 
-    logger.info(f"WORKLOAD: {workload['name']} - TYPE SONGBEAMER")
+    logger.info(f"👉 WORKLOAD: {workload['name']} - TYPE SONGBEAMER")
 
     sb = songbeamer.songbeamer(loglevel=LOGLEVEL)
 
@@ -335,7 +335,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_DELETE_ALL']:
 
-      logger.info("DELETE MODE")
+      logger.info("❌ DELETE MODE")
 
       logger.info("Deleting all songs")
       if input("Are you sure (y/n)??: ") == "y":
@@ -368,7 +368,7 @@ for workload in CONFIG['workloads']:
     
     if workload['CMD_CLEANUP']:
 
-      logger.info("CLEANUP MODE")
+      logger.info("🧹 CLEANUP MODE")
 
       logger.info("Cleaning up all songs without an arrangement, an internal id or who are not in the Songbeamer source")
       songs_by_category = ct.ct_get_songs_by_category_id(category_id=ct_category_id)
@@ -399,7 +399,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_ADD']:
 
-      logger.info("ADD MODE")
+      logger.info("➕ ADD MODE")
 
       logger.info("Reading SongBeamer song files")
       
@@ -415,7 +415,7 @@ for workload in CONFIG['workloads']:
       for song in sb_songs:
 
         logger.info("#####################################################")
-        logger.info(f"Current song: {song["title"]}")
+        logger.info(f"🎵 Current song: {song["title"]}")
         logger.info("#####################################################")
         
         if ct_song := ct.ct_get_song_by_name_and_internal_id(name=song["title"], internal_id=song["internal_id"], arrangement_name=CONFIG['global']['CT_SONG_ARRANGEMENT_NAME'], type=workload['CT_SONG_IDENTIFIER']):
@@ -425,7 +425,7 @@ for workload in CONFIG['workloads']:
           if not workload['SKIP_UPDATE']:
             ct.ct_update_song_by_id(song_id=ct_song["id"], song=song, category_id=ct_category_id)
 
-            logger.info("Get arrangement")
+            logger.debug("Get arrangement")
             if(ct._ct_check_arrangement_name(arrangements=ct_song["arrangements"])):
 
               arrangement_id = ct._ct_get_arrangement_id_by_name(song=ct_song, arrangement_name=CONFIG['global']['CT_SONG_ARRANGEMENT_NAME'])
@@ -488,7 +488,7 @@ for workload in CONFIG['workloads']:
   # File only mode
   if "file" in workload['TYPE']:
 
-    logger.info(f"WORKLOAD: {workload['name']} - TYPE FILE ONLY")
+    logger.info(f"👉 WORKLOAD: {workload['name']} - TYPE FILE ONLY")
 
     logger.debug(f"Get category id for {workload['CT_SONG_CATEGORY']}")
     ct_categories = ct.ct_get_masterdata("songCategories")
@@ -506,7 +506,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_DELETE_ALL']:
 
-      logger.info("DELETE MODE")
+      logger.info("❌ DELETE MODE")
 
       logger.info("Deleting all songs")
       if input("Are you sure (y/n)??: ") == "y":
@@ -557,7 +557,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_CLEANUP']:
 
-      logger.info("CLEANUP MODE")
+      logger.info("🧹 CLEANUP MODE")
 
       logger.info("Cleaning up all songs without an arrangement")
       songs_by_category = ct.ct_get_songs_by_category_id(category_id=ct_category_id)
@@ -570,7 +570,7 @@ for workload in CONFIG['workloads']:
 
     if workload['CMD_ADD']:
 
-      logger.info("ADD MODE")
+      logger.info("➕ ADD MODE")
 
       if 'NUMBER' in workload:
         logger.info(f"Dedicated song number {workload['NUMBER']} provided. Reducing list to this one song.")
@@ -590,7 +590,7 @@ for workload in CONFIG['workloads']:
           title_new = song['title']
 
         logger.info("#####################################################")
-        logger.info("Current song: %s", title_new)
+        logger.info("🎵 Current song: %s", title_new)
         logger.info("#####################################################")
         
 
@@ -604,7 +604,7 @@ for workload in CONFIG['workloads']:
           
             if not workload['SKIP_UPDATE']:
             
-              logger.info("Get arrangement")
+              logger.debug("Get arrangement")
               if(ct._ct_check_arrangement_name(arrangements=ct_song["arrangements"])):
 
                 arrangement_id = ct._ct_get_arrangement_id_by_name(song=ct_song, arrangement_name=CONFIG['global']['CT_SONG_ARRANGEMENT_NAME'])
